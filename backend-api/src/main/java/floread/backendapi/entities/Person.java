@@ -2,7 +2,7 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
+
 import java.util.List;
 
 
@@ -68,15 +68,15 @@ public class Person implements Serializable {
 		return this.appUserId;
 	}
 
-	public void setAppUserId(Object appUserId) {
+	public void setAppUserId(String appUserId) {
 		this.appUserId = appUserId;
 	}
 
-	public Array getBirthDate() {
+	public String getBirthDate() {
 		return this.birthDate;
 	}
 
-	public void setBirthDate(Array birthDate) {
+	public void setBirthDate(String birthDate) {
 		this.birthDate = birthDate;
 	}
 
@@ -84,39 +84,39 @@ public class Person implements Serializable {
 		return this.companyId;
 	}
 
-	public void setCompanyId(Object companyId) {
+	public void setCompanyId(String companyId) {
 		this.companyId = companyId;
 	}
 
-	public Array getFirstname() {
+	public String getFirstname() {
 		return this.firstname;
 	}
 
-	public void setFirstname(Array firstname) {
+	public void setFirstname(String firstname) {
 		this.firstname = firstname;
 	}
 
-	public Array getGender() {
+	public String getGender() {
 		return this.gender;
 	}
 
-	public void setGender(Array gender) {
+	public void setGender(String gender) {
 		this.gender = gender;
 	}
 
-	public Array getLastname() {
+	public String getLastname() {
 		return this.lastname;
 	}
 
-	public void setLastname(Array lastname) {
+	public void setLastname(String lastname) {
 		this.lastname = lastname;
 	}
 
-	public Array getSalutation() {
+	public String getSalutation() {
 		return this.salutation;
 	}
 
-	public void setSalutation(Array salutation) {
+	public void setSalutation(String salutation) {
 		this.salutation = salutation;
 	}
 

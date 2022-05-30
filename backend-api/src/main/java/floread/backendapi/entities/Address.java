@@ -2,7 +2,6 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
 import java.util.List;
 
 
@@ -75,11 +74,11 @@ public class Address implements Serializable {
 		this.aptNumber = aptNumber;
 	}
 
-	public Array getBuilding() {
+	public String getBuilding() {
 		return this.building;
 	}
 
-	public void setBuilding(Array building) {
+	public void setBuilding(String building) {
 		this.building = building;
 	}
 
@@ -87,7 +86,7 @@ public class Address implements Serializable {
 		return this.cityId;
 	}
 
-	public void setCityId(Object cityId) {
+	public void setCityId(String cityId) {
 		this.cityId = cityId;
 	}
 
@@ -95,7 +94,7 @@ public class Address implements Serializable {
 		return this.countyId;
 	}
 
-	public void setCountyId(Object countyId) {
+	public void setCountyId(String countyId) {
 		this.countyId = countyId;
 	}
 
@@ -107,27 +106,27 @@ public class Address implements Serializable {
 		this.floor = floor;
 	}
 
-	public Array getNumber() {
+	public String getNumber() {
 		return this.number;
 	}
 
-	public void setNumber(Array number) {
+	public void setNumber(String number) {
 		this.number = number;
 	}
 
-	public Array getPostCode() {
+	public String getPostCode() {
 		return this.postCode;
 	}
 
-	public void setPostCode(Array postCode) {
+	public void setPostCode(String postCode) {
 		this.postCode = postCode;
 	}
 
-	public Array getStreet() {
+	public String getStreet() {
 		return this.street;
 	}
 
-	public void setStreet(Array street) {
+	public void setStreet(String street) {
 		this.street = street;
 	}
 

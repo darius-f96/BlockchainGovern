@@ -2,7 +2,6 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
 import java.util.List;
 
 
@@ -71,11 +70,11 @@ public class Company implements Serializable {
 		this.companyId = companyId;
 	}
 
-	public Array getCui() {
+	public String getCui() {
 		return this.cui;
 	}
 
-	public void setCui(Array cui) {
+	public void setCui(String cui) {
 		this.cui = cui;
 	}
 
@@ -87,19 +86,19 @@ public class Company implements Serializable {
 		this.description = description;
 	}
 
-	public Array getName() {
+	public String getName() {
 		return this.name;
 	}
 
-	public void setName(Array name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
-	public Array getRegIdentifier() {
+	public String getRegIdentifier() {
 		return this.regIdentifier;
 	}
 
-	public void setRegIdentifier(Array regIdentifier) {
+	public void setRegIdentifier(String regIdentifier) {
 		this.regIdentifier = regIdentifier;
 	}
 

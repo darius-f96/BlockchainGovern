@@ -47,7 +47,7 @@ public class PersonWallet implements Serializable {
 		return this.appUserId;
 	}
 
-	public void setAppUserId(Object appUserId) {
+	public void setAppUserId(String appUserId) {
 		this.appUserId = appUserId;
 	}
 
@@ -55,7 +55,7 @@ public class PersonWallet implements Serializable {
 		return this.walletId;
 	}
 
-	public void setWalletId(Object walletId) {
+	public void setWalletId(String walletId) {
 		this.walletId = walletId;
 	}
 

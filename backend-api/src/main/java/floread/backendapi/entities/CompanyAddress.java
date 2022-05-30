@@ -47,7 +47,7 @@ public class CompanyAddress implements Serializable {
 		return this.addressId;
 	}
 
-	public void setAddressId(Object addressId) {
+	public void setAddressId(String addressId) {
 		this.addressId = addressId;
 	}
 
@@ -55,7 +55,7 @@ public class CompanyAddress implements Serializable {
 		return this.companyId;
 	}
 
-	public void setCompanyId(Object companyId) {
+	public void setCompanyId(String companyId) {
 		this.companyId = companyId;
 	}
 

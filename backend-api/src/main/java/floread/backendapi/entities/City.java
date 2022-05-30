@@ -3,8 +3,6 @@ package floread.backendapi.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
-import com.fasterxml.jackson.databind.JsonMappingException.Reference;
-
 import java.util.List;
 
 
@@ -58,7 +56,7 @@ public class City implements Serializable {
 		return this.countryId;
 	}
 
-	public void setCountryId(Object countryId) {
+	public void setCountryId(String countryId) {
 		this.countryId = countryId;
 	}
 
@@ -66,7 +64,7 @@ public class City implements Serializable {
 		return this.countyId;
 	}
 
-	public void setCountyId(Object countyId) {
+	public void setCountyId(String countyId) {
 		this.countyId = countyId;
 	}
 

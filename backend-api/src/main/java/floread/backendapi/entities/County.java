@@ -2,7 +2,7 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
+
 import java.util.List;
 
 
@@ -48,11 +48,11 @@ public class County implements Serializable {
 		this.countyId = countyId;
 	}
 
-	public Array getCode() {
+	public String getCode() {
 		return this.code;
 	}
 
-	public void setCode(Array code) {
+	public void setCode(String code) {
 		this.code = code;
 	}
 
@@ -60,15 +60,15 @@ public class County implements Serializable {
 		return this.countryId;
 	}
 
-	public void setCountryId(Object countryId) {
+	public void setCountryId(String countryId) {
 		this.countryId = countryId;
 	}
 
-	public Array getName() {
+	public String getName() {
 		return this.name;
 	}
 
-	public void setName(Array name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 

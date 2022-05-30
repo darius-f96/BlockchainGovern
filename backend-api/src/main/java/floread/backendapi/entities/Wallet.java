@@ -2,7 +2,7 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
+
 import java.util.List;
 
 
@@ -42,11 +42,11 @@ public class Wallet implements Serializable {
 		this.walletId = walletId;
 	}
 
-	public Array getWalletCode() {
+	public String getWalletCode() {
 		return this.walletCode;
 	}
 
-	public void setWalletCode(Array walletCode) {
+	public void setWalletCode(String walletCode) {
 		this.walletCode = walletCode;
 	}
 

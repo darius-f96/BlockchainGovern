@@ -2,7 +2,6 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
 import java.util.List;
 
 
@@ -56,27 +55,27 @@ public class AppUser implements Serializable {
 		this.appUserId = appUserId;
 	}
 
-	public Array getEmail() {
+	public String getEmail() {
 		return this.email;
 	}
 
-	public void setEmail(Array email) {
+	public void setEmail(String email) {
 		this.email = email;
 	}
 
-	public Array getPassword() {
+	public String getPassword() {
 		return this.password;
 	}
 
-	public void setPassword(Array password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 
-	public Array getUsername() {
+	public String getUsername() {
 		return this.username;
 	}
 
-	public void setUsername(Array username) {
+	public void setUsername(String username) {
 		this.username = username;
 	}
 

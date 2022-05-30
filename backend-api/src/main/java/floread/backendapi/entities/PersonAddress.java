@@ -47,7 +47,7 @@ public class PersonAddress implements Serializable {
 		return this.addressId;
 	}
 
-	public void setAddressId(Object addressId) {
+	public void setAddressId(String addressId) {
 		this.addressId = addressId;
 	}
 
@@ -55,7 +55,7 @@ public class PersonAddress implements Serializable {
 		return this.personId;
 	}
 
-	public void setPersonId(Object personId) {
+	public void setPersonId(String personId) {
 		this.personId = personId;
 	}
 

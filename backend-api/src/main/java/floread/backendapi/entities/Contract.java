@@ -2,7 +2,7 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
+
 import java.util.List;
 
 
@@ -45,11 +45,11 @@ public class Contract implements Serializable {
 		this.contractId = contractId;
 	}
 
-	public Array getContractCode() {
+	public String getContractCode() {
 		return this.contractCode;
 	}
 
-	public void setContractCode(Array contractCode) {
+	public void setContractCode(String contractCode) {
 		this.contractCode = contractCode;
 	}
 

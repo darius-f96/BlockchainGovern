@@ -47,7 +47,7 @@ public class CompanyWallet implements Serializable {
 		return this.companyId;
 	}
 
-	public void setCompanyId(Object companyId) {
+	public void setCompanyId(String companyId) {
 		this.companyId = companyId;
 	}
 
@@ -55,7 +55,7 @@ public class CompanyWallet implements Serializable {
 		return this.walletId;
 	}
 
-	public void setWalletId(Object walletId) {
+	public void setWalletId(String walletId) {
 		this.walletId = walletId;
 	}
 

@@ -2,7 +2,7 @@ package floread.backendapi.entities;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import java.sql.Array;
+
 import java.util.List;
 
 
@@ -41,19 +41,19 @@ public class RoleType implements Serializable {
 		this.roleTypeId = roleTypeId;
 	}
 
-	public Array getDescription() {
+	public String getDescription() {
 		return this.description;
 	}
 
-	public void setDescription(Array description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
-	public Array getRoleCode() {
+	public String getRoleCode() {
 		return this.roleCode;
 	}
 
-	public void setRoleCode(Array roleCode) {
+	public void setRoleCode(String roleCode) {
 		this.roleCode = roleCode;
 	}
 

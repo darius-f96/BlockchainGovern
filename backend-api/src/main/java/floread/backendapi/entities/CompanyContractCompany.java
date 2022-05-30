@@ -54,7 +54,7 @@ public class CompanyContractCompany implements Serializable {
 		return this.companyId1;
 	}
 
-	public void setCompanyId1(Object companyId1) {
+	public void setCompanyId1(String companyId1) {
 		this.companyId1 = companyId1;
 	}
 
@@ -62,7 +62,7 @@ public class CompanyContractCompany implements Serializable {
 		return this.companyId2;
 	}
 
-	public void setCompanyId2(Object companyId2) {
+	public void setCompanyId2(String companyId2) {
 		this.companyId2 = companyId2;
 	}
 
@@ -70,7 +70,7 @@ public class CompanyContractCompany implements Serializable {
 		return this.contractId;
 	}
 
-	public void setContractId(Object contractId) {
+	public void setContractId(String contractId) {
 		this.contractId = contractId;
 	}
 
