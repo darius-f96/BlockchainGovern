@@ -1,89 +1,72 @@
 package floread.backendapi.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.entities.AppUser;
+import floread.backendapi.requestmodel.LoginRequest;
+import floread.backendapi.requestmodel.RegistrationRequest;
+import floread.backendapi.responsemodel.JWTResponse;
+import floread.backendapi.security.BChainAuthenticationProvider;
+import floread.backendapi.security.JWTProvider;
+import floread.backendapi.services.AppUserService;
+import floread.backendapi.services.RegistrationService;
 
 @RestController
-@RequestMapping("/appUser")
+@RequestMapping(value = "/appUser", method = {RequestMethod.POST})
+@CrossOrigin
 class AppUserController {
 
     @Autowired
     AppUserDAO repository;
 
+    @Autowired
+    RegistrationService registrationService;
+
+    @Autowired
+    BChainAuthenticationProvider authenticationManager;
+    @Autowired
+    JWTProvider tokenProvider;
+
+    @Autowired
+    AppUserService appUserService;
+
     @GetMapping
-    public ResponseEntity<List<AppUser>> getAll() {
-        try {
-            List<AppUser> items = new ArrayList<AppUser>();
-
-            repository.findAll().forEach(items::add);
-
-            if (items.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-            return new ResponseEntity<>(items, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public String register(@RequestBody RegistrationRequest request){
+        return registrationService.register(request);
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<AppUser> getById(@PathVariable("id") UUID id) {
-        Optional<AppUser> existingItemOptional = repository.findById(id);
+    @PostMapping("/signin")
+    public ResponseEntity<JWTResponse> authenticateUser(@Validated @RequestBody LoginRequest login) {
+        Authentication authentication = authenticationManager
+            .authenticate(new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        if (existingItemOptional.isPresent()) {
-            return new ResponseEntity<>(existingItemOptional.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        final UserDetails userDetails = appUserService.loadUserByUsername(login.getUsername());
+
+        String jwt = tokenProvider.generateToken(userDetails);
+        
+        return ResponseEntity.ok(new JWTResponse(jwt));
     }
 
-    @PostMapping
-    public ResponseEntity<AppUser> create(@RequestBody AppUser item) {
-        try {
-            AppUser savedItem = repository.save(item);
-            return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
-        }
+    @GetMapping("login")
+    public String getLogin(){
+        return "login";
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<AppUser> update(@PathVariable("id") UUID id, @RequestBody AppUser item) {
-        Optional<AppUser> existingItemOptional = repository.findById(id);
-        if (existingItemOptional.isPresent()) {
-            AppUser existingItem = existingItemOptional.get();
-            System.out.println("TODO for developer - update logic is unique to entity and must be implemented manually.");
-            //existingItem.setSomeField(item.getSomeField());
-            return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping("{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") UUID id) {
-        try {
-            repository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
-    }
 }

@@ -1,11 +1,16 @@
 package floread.backendapi.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import floread.backendapi.dao.PersonDAO;
@@ -28,16 +34,24 @@ class PersonController {
     PersonDAO repository;
 
     @GetMapping
-    public ResponseEntity<List<Person>> getAll() {
-        try {
+    public ResponseEntity<Map<String, Object>> getAll(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "2") int pageSize
+    ) {
+        try { 
+            page--;
             List<Person> items = new ArrayList<Person>();
+            Pageable paging = PageRequest.of(page, pageSize);
+            Page<Person> personPage;
+            personPage = repository.findAll(paging);
+            items = personPage.getContent();
+            Map<String, Object> response = new HashMap<>();
+            
+            response.put("persons", items);
+            response.put("page", page);
+            response.put("totalElements", personPage.getTotalElements());
 
-            repository.findAll().forEach(items::add);
-
-            if (items.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-            return new ResponseEntity<>(items, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

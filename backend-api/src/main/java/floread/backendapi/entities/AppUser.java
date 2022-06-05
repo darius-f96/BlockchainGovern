@@ -1,8 +1,16 @@
 package floread.backendapi.entities;
 
-import java.io.Serializable;
 import javax.persistence.*;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -12,11 +20,23 @@ import java.util.List;
 @Entity
 @Table(name="\"AppUser\"")
 @NamedQuery(name="AppUser.findAll", query="SELECT a FROM AppUser a")
-public class AppUser implements Serializable {
+public class AppUser implements UserDetails {
 	private static final long serialVersionUID = 1L;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities(){
+		SimpleGrantedAuthority authority;
+	
+		authority = new SimpleGrantedAuthority("ADMIN");
+	
+		return Collections.singletonList(authority);
+	}
 
 	@Id
 	@Column(name="\"AppUserId\"")
+	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	private String appUserId;
 
 	@Column(name="\"Email\"")
@@ -27,6 +47,9 @@ public class AppUser implements Serializable {
 
 	@Column(name="\"Username\"")
 	private String username;
+
+	private boolean locked;
+	private boolean enabled;
 
 	//bi-directional many-to-one association to CompanyContractPerson
 	@OneToMany(mappedBy="appUser")
@@ -44,7 +67,20 @@ public class AppUser implements Serializable {
 	@OneToMany(mappedBy="appUser")
 	private List<UserRole> userRoles;
 
-	public AppUser() {
+	@Transient
+	private Collection<? extends GrantedAuthority> authorities;
+
+	public AppUser(String username,
+					String email,
+					String password) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.locked = false;
+		this.enabled = true;
+	}
+	public AppUser(){
+		
 	}
 
 	public String getAppUserId() {
@@ -165,6 +201,30 @@ public class AppUser implements Serializable {
 		userRole.setAppUser(null);
 
 		return userRole;
+	}
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+	@Override
+	public boolean isAccountNonLocked() {
+		return !locked;
+
+	}
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+	@Override
+	public boolean isEnabled(){
+		return enabled;
+	}
+	public void setEnabled (Boolean enabled){
+		this.enabled = enabled;
+	}
+
+	public void setAuthorities(Collection<? extends GrantedAuthority> authorities){
+		this.authorities = authorities;
 	}
 
 }
