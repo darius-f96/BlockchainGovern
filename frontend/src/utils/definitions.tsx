@@ -6,10 +6,10 @@ interface AppUserEntity {
     Username: string;
     Email: string;
 }
-interface PersonEntity {
-    PersonId : string;
+export interface PersonEntity {
+    id : string;
     AppUserId: string;
-    birthDate: Date;
+    birthDate: Date | null;
     companyId: string;
     firstname : string;
     lastname : string;

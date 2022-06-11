@@ -1,8 +1,4 @@
 import React from 'react';
-import AppUserService from '../services/AppUserService';
-import { Admin, Resource, ListGuesser } from 'react-admin';
-import SpringBootDataProvider from '../services/SpringBootDataProvider';
-import { AppuserList } from './AppUserList';
 import { Props, AppUserData } from '../utils/definitions';
 
 class AppUserComponent extends React.Component<Props, AppUserData>{
@@ -41,17 +37,17 @@ class AppUserComponent extends React.Component<Props, AppUserData>{
         this.state = {appusers : undefined}
     }
 
-    componentDidMount(){
-        AppUserService.getAppUsers().then(response => {
-            if (response.status !== 204)
-             {this.setState( {appusers : response.data} )}
-             else { this.setState( {appusers : undefined})}
-        })
-        .catch(error => {
-            alert(error.message)      
-        })
+    // componentDidMount(){
+    //     AppUserService.getAppUsers().then(response => {
+    //         if (response.status !== 204)
+    //          {this.setState( {appusers : response.data} )}
+    //          else { this.setState( {appusers : undefined})}
+    //     })
+    //     .catch(error => {
+    //         alert(error.message)      
+    //     })
         
-    }
+    // }
 
     displayData() {
         return(
@@ -84,8 +80,7 @@ class AppUserComponent extends React.Component<Props, AppUserData>{
 
     render(): JSX.Element { 
         return (
-            //    this.displayData()
-            <Resource name='appUser' list={AppuserList}></Resource>
+                this.displayData()
         );
         
     }

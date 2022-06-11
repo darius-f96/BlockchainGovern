@@ -10,7 +10,8 @@ import {
   DELETE,
   DELETE_MANY
 } from "react-admin";
-import {v4 as uuid} from 'uuid'
+
+import {auth} from '../utils/auth'
 
 interface Pagination {
   page:Number,
@@ -43,15 +44,6 @@ interface SimpleResponse{
 
 
  export default (apiUrl:String, httpClient = fetchUtils.fetchJson) => {
-  
-  const auth = (tk = localStorage.getItem('auth')) => {
-    if (tk !== null){
-      
-      let localtoken = JSON.parse(tk)
-      return localtoken.token
-    }
-    return '';
-  }
 
   const convertDataRequestToHTTP = (type:String, resource:string, params:Params) => {
 
@@ -70,7 +62,11 @@ interface SimpleResponse{
         break;
       }
       case GET_ONE:
-        url = `${apiUrl}/${resource}/${params.id}`;
+        console.log('got to' + resource)
+        if (resource === 'appUser/userContext'){
+          url = `${apiUrl}/${resource}`
+        }
+        else {url = `${apiUrl}/${resource}/${params.id}`}
         break;
       case GET_MANY: {
         const query = {
@@ -78,7 +74,7 @@ interface SimpleResponse{
         };
         let idStr = "";
         const queryString = params.ids.map(id => idStr + `id=${id}`);
-        url = `${apiUrl}/${resource}?${idStr}`
+        url = `${apiUrl}/${resource}?${queryString}`
         break;
       }
       case GET_MANY_REFERENCE: {
@@ -141,7 +137,8 @@ interface SimpleResponse{
     }
   };
 
-  return (type:string, resource:string, params:Params) => {
+  return async (type:string, resource:string, params:Params) => {
+    
     // simple-rest doesn't handle filters on UPDATE route, so we fallback to calling UPDATE n times instead
     if (type === UPDATE_MANY) {
       return Promise.all(
@@ -169,7 +166,7 @@ interface SimpleResponse{
     }
 
     const { url, options } = convertDataRequestToHTTP(type, resource, params);
-    return httpClient(url, options).then(response => {
+    return await httpClient(url, options).then(response => {
       if (response.status !== 204){
         return convertHTTPResponse(response, type, resource, params)
       }
@@ -178,4 +175,5 @@ interface SimpleResponse{
       console.log(err)
     })
   };
+
 };

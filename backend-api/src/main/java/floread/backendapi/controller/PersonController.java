@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.annotations.common.util.impl.Log_.logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,7 +60,7 @@ class PersonController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Person> getById(@PathVariable("id") UUID id) {
+    public ResponseEntity<Person> getById(@PathVariable("id") String id) {
         Optional<Person> existingItemOptional = repository.findById(id);
 
         if (existingItemOptional.isPresent()) {
@@ -78,13 +80,17 @@ class PersonController {
         }
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Person> update(@PathVariable("id") UUID id, @RequestBody Person item) {
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Person> update(@PathVariable("id") String id, @RequestBody Person item) {
         Optional<Person> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
             Person existingItem = existingItemOptional.get();
-            System.out.println("TODO for developer - update logic is unique to entity and must be implemented manually.");
-            //existingItem.setSomeField(item.getSomeField());
+            
+            existingItem.setFirstname(item.getFirstname());
+            existingItem.setLastname(item.getLastname());
+            existingItem.setBirthDate(item.getBirthDate());
+            existingItem.setGender(item.getGender());
+            existingItem.setSalutation(item.getSalutation());
             return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -92,7 +98,7 @@ class PersonController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") UUID id) {
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
         try {
             repository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

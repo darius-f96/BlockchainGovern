@@ -56,15 +56,15 @@ public class AppUser implements UserDetails {
 	private List<CompanyContractPerson> companyContractPersons;
 
 	//bi-directional many-to-one association to Person
-	@OneToMany(mappedBy="appUser")
+	@OneToMany(mappedBy="appUserId")
 	private List<Person> persons;
 
 	//bi-directional many-to-one association to PersonWallet
-	@OneToMany(mappedBy="appUser")
+	@OneToMany(mappedBy="appUserId")
 	private List<PersonWallet> personWallets;
 
 	//bi-directional many-to-one association to UserRole
-	@OneToMany(mappedBy="appUser")
+	@OneToMany(mappedBy="appUserId")
 	private List<UserRole> userRoles;
 
 	@Transient

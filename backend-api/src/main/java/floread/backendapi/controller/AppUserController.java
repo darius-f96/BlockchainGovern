@@ -1,7 +1,13 @@
 package floread.backendapi.controller;
 
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import floread.backendapi.dao.AppUserDAO;
@@ -68,5 +75,23 @@ class AppUserController {
     public String getLogin(){
         return "login";
     }
+
+    @RequestMapping(value = "/userContext", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> currentUserName(Principal principal) {
+        Optional<AppUser> appUser = repository.findByUsername(principal.getName());
+        Map<String, Object> response = new HashMap<>();
+        if (appUser.isPresent()) {
+            response.put("username", appUser.get().getUsername());
+            response.put("email", appUser.get().getEmail());
+            response.put("persons", appUser.get().getPersons());
+        }
+        if (appUser.isPresent()) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 }
