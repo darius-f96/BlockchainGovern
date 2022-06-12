@@ -53,7 +53,7 @@ public class CompanyContractPerson implements Serializable {
 		this.companyContractPersonId = companyContractPersonId;
 	}
 
-	public Object getAppUserId() {
+	public String getAppUserId() {
 		return this.appUserId;
 	}
 
@@ -61,7 +61,7 @@ public class CompanyContractPerson implements Serializable {
 		this.appUserId = appUserId;
 	}
 
-	public Object getCompanyId() {
+	public String getCompanyId() {
 		return this.companyId;
 	}
 
@@ -69,7 +69,7 @@ public class CompanyContractPerson implements Serializable {
 		this.companyId = companyId;
 	}
 
-	public Object getContractId() {
+	public String getContractId() {
 		return this.contractId;
 	}
 

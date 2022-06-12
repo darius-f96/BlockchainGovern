@@ -1,5 +1,6 @@
 package floread.backendapi.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
+import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.CompanyContractPersonDAO;
+import floread.backendapi.dao.CompanyDAO;
+import floread.backendapi.dao.UserRoleDAO;
+import floread.backendapi.entities.AppUser;
+import floread.backendapi.entities.Company;
 import floread.backendapi.entities.CompanyContractPerson;
+import floread.backendapi.entities.UserRole;
 
 @RestController
 @RequestMapping("/companyContractPerson")
@@ -27,6 +34,12 @@ class CompanyContractPersonController {
 
     @Autowired
     CompanyContractPersonDAO repository;
+    @Autowired
+    CompanyDAO companyDAO;
+    @Autowired
+    AppUserDAO appUserDAO;
+    @Autowired
+    UserRoleDAO userRoleDAO;
 
     @GetMapping
     public ResponseEntity<List<CompanyContractPerson>> getAll() {
@@ -56,13 +69,26 @@ class CompanyContractPersonController {
     }
 
     @PostMapping
-    public ResponseEntity<CompanyContractPerson> create(@RequestBody CompanyContractPerson item) {
-        try {
-            CompanyContractPerson savedItem = repository.save(item);
-            return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<CompanyContractPerson> create(@RequestBody CompanyContractPerson item, Principal principal) {
+        Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
+        if (appUser.isPresent()) {
+            Optional<Company> company1 = companyDAO.findByCui(item.getCompanyId());
+            if (company1.isPresent()){
+                Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company1.get().getCompanyId(), appUser.get().getAppUserId());
+                if (uRole.isPresent() && uRole.get().getRoleType().getRoleCode() == "ADMIN" || uRole.get().getRoleType().getRoleCode() == "HR"){
+                    try {
+                        item.setCompanyId(company1.get().getCompanyId());
+                        item.setAppUserId(appUser.get().getAppUserId());
+                        CompanyContractPerson savedItem = repository.save(item);
+                        return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+                    } catch (Exception e) {
+                        return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+                    }
+                }
+            }
+            else return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
     }
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
