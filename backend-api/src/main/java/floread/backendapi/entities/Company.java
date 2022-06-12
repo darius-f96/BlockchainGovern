@@ -3,6 +3,8 @@ package floread.backendapi.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,6 +23,8 @@ public class Company implements Serializable {
 
 	@Id
 	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"CompanyId\"")
 	private String companyId;
 
@@ -41,27 +45,27 @@ public class Company implements Serializable {
 	private List<CompanyAddress> companyAddresses;
 
 	//bi-directional many-to-one association to CompanyContractCompany
-	@OneToMany(mappedBy="company1")
+	@OneToMany(mappedBy="companyId1")
 	private List<CompanyContractCompany> companyContractCompanies1;
 
 	//bi-directional many-to-one association to CompanyContractCompany
-	@OneToMany(mappedBy="company2")
+	@OneToMany(mappedBy="companyId2")
 	private List<CompanyContractCompany> companyContractCompanies2;
 
 	//bi-directional many-to-one association to CompanyContractPerson
-	@OneToMany(mappedBy="company")
+	@OneToMany(mappedBy="companyId")
 	private List<CompanyContractPerson> companyContractPersons;
 
 	//bi-directional many-to-one association to CompanyWallet
-	@OneToMany(mappedBy="company")
+	@OneToMany(mappedBy="companyId")
 	private List<CompanyWallet> companyWallets;
 
 	//bi-directional many-to-one association to Person
-	@OneToMany(mappedBy="company")
+	@OneToMany(mappedBy="companyId")
 	private List<Person> persons;
 
 	//bi-directional many-to-one association to UserRole
-	@OneToMany(mappedBy="company")
+	@OneToMany(mappedBy="companyId")
 	private List<UserRole> userRoles;
 
 	public Company() {

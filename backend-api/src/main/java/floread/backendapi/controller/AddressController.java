@@ -3,7 +3,7 @@ package floread.backendapi.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
 
 import floread.backendapi.dao.AddressDAO;
 import floread.backendapi.entities.Address;
@@ -43,8 +44,8 @@ class AddressController {
         }
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<Address> getById(@PathVariable("id") UUID id) {
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Address> getById(@PathVariable("id") String id) {
         Optional<Address> existingItemOptional = repository.findById(id);
 
         if (existingItemOptional.isPresent()) {
@@ -64,8 +65,8 @@ class AddressController {
         }
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Address> update(@PathVariable("id") UUID id, @RequestBody Address item) {
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Address> update(@PathVariable("id") String id, @RequestBody Address item) {
         Optional<Address> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
             Address existingItem = existingItemOptional.get();
@@ -77,8 +78,8 @@ class AddressController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") UUID id) {
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
         try {
             repository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

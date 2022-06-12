@@ -1,5 +1,5 @@
 import React from 'react';
-import { Props, AppUserData } from '../utils/definitions';
+import { Props, AppUserData } from '../../utils/definitions';
 
 class AppUserComponent extends React.Component<Props, AppUserData>{
     

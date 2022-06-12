@@ -3,7 +3,7 @@ package floread.backendapi.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
 
 import floread.backendapi.dao.PersonWalletDAO;
 import floread.backendapi.entities.PersonWallet;
@@ -43,8 +44,8 @@ class PersonWalletController {
         }
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<PersonWallet> getById(@PathVariable("id") UUID id) {
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PersonWallet> getById(@PathVariable("id") String id) {
         Optional<PersonWallet> existingItemOptional = repository.findById(id);
 
         if (existingItemOptional.isPresent()) {
@@ -64,8 +65,8 @@ class PersonWalletController {
         }
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<PersonWallet> update(@PathVariable("id") UUID id, @RequestBody PersonWallet item) {
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PersonWallet> update(@PathVariable("id") String id, @RequestBody PersonWallet item) {
         Optional<PersonWallet> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
             PersonWallet existingItem = existingItemOptional.get();
@@ -77,8 +78,8 @@ class PersonWalletController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") UUID id) {
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
         try {
             repository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

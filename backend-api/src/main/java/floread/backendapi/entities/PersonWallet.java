@@ -3,6 +3,10 @@ package floread.backendapi.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 /**
  * The persistent class for the "PersonWallet" database table.
@@ -15,6 +19,9 @@ public class PersonWallet implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"PersonWalletId\"")
 	private String personWalletId;
 
@@ -27,10 +34,6 @@ public class PersonWallet implements Serializable {
 	//bi-directional many-to-one association to AppUser
 	@ManyToOne
 	private AppUser appUser;
-
-	//bi-directional many-to-one association to Wallet
-	@ManyToOne
-	private Wallet wallet;
 
 	public PersonWallet() {
 	}
@@ -65,14 +68,6 @@ public class PersonWallet implements Serializable {
 
 	public void setAppUser(AppUser appUser) {
 		this.appUser = appUser;
-	}
-
-	public Wallet getWallet() {
-		return this.wallet;
-	}
-
-	public void setWallet(Wallet wallet) {
-		this.wallet = wallet;
 	}
 
 }

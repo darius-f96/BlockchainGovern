@@ -42,7 +42,6 @@ interface SimpleResponse{
   json:JSON
 }
 
-
  export default (apiUrl:String, httpClient = fetchUtils.fetchJson) => {
 
   const convertDataRequestToHTTP = (type:String, resource:string, params:Params) => {

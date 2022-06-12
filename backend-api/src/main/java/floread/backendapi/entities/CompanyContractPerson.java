@@ -3,6 +3,10 @@ package floread.backendapi.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 /**
  * The persistent class for the "CompanyContractPerson" database table.
@@ -15,6 +19,9 @@ public class CompanyContractPerson implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"CompanyContractPersonId\"")
 	private String companyContractPersonId;
 
@@ -34,10 +41,6 @@ public class CompanyContractPerson implements Serializable {
 	//bi-directional many-to-one association to Company
 	@ManyToOne
 	private Company company;
-
-	//bi-directional many-to-one association to Contract
-	@ManyToOne
-	private Contract contract;
 
 	public CompanyContractPerson() {
 	}
@@ -88,14 +91,6 @@ public class CompanyContractPerson implements Serializable {
 
 	public void setCompany(Company company) {
 		this.company = company;
-	}
-
-	public Contract getContract() {
-		return this.contract;
-	}
-
-	public void setContract(Contract contract) {
-		this.contract = contract;
 	}
 
 }

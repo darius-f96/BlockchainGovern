@@ -3,10 +3,11 @@ package floread.backendapi.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +44,8 @@ class CityController {
         }
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<City> getById(@PathVariable("id") UUID id) {
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<City> getById(@PathVariable("id") String id) {
         Optional<City> existingItemOptional = repository.findById(id);
 
         if (existingItemOptional.isPresent()) {
@@ -64,8 +65,8 @@ class CityController {
         }
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<City> update(@PathVariable("id") UUID id, @RequestBody City item) {
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<City> update(@PathVariable("id") String id, @RequestBody City item) {
         Optional<City> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
             City existingItem = existingItemOptional.get();
@@ -77,8 +78,8 @@ class CityController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") UUID id) {
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
         try {
             repository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

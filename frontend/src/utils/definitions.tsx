@@ -15,6 +15,29 @@ export interface PersonEntity {
     lastname : string;
     gender : string;
     salutation : string;
+    personCode : string;
+}
+export interface CompanyEntity {
+    id : string;
+    Name: string;
+    CUI: string;
+    Description: string;
+    regIdentifier: string;
+}
+
+export interface B2BContract {
+    id : string;
+    contractCode : string;
+    companyid1 : string;
+    companyid2 : string;
+    description : string;
+}
+export interface B2PContract {
+    id : string;
+    contractCode : string;
+    personid : string;
+    companyid : string;
+    description : string;
 }
 
 export interface AppUserData {

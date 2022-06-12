@@ -85,6 +85,7 @@ class AppUserController {
             response.put("username", appUser.get().getUsername());
             response.put("email", appUser.get().getEmail());
             response.put("persons", appUser.get().getPersons());
+            response.put("userRoles", appUser.get().getUserRoles());
         }
         if (appUser.isPresent()) {
             return new ResponseEntity<>(response, HttpStatus.OK);

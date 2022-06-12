@@ -1,13 +1,12 @@
 package floread.backendapi.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
-import org.hibernate.annotations.common.util.impl.Log_.logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.PersonDAO;
+import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Person;
 
 @RestController
@@ -34,6 +35,8 @@ class PersonController {
 
     @Autowired
     PersonDAO repository;
+    @Autowired
+    AppUserDAO appuserRepository;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAll(
@@ -59,7 +62,7 @@ class PersonController {
         }
     }
 
-    @GetMapping("{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Person> getById(@PathVariable("id") String id) {
         Optional<Person> existingItemOptional = repository.findById(id);
 
@@ -71,14 +74,28 @@ class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<Person> create(@RequestBody Person item) {
-        try {
-            Person savedItem = repository.save(item);
-            return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<Person> create(@RequestBody Person item, Principal principal) {
+        Optional<AppUser> appUser = appuserRepository.findByUsername(principal.getName());
+        if (appUser.isPresent()) {
+            Optional<Person> existingItem = repository.findByAppUserId(appUser.get().getAppUserId());
+            if (existingItem.isPresent()){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            item.setAppUserId(appUser.get().getAppUserId());
+            try {
+                Person savedItem = repository.save(item);
+                return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }
+        }
+        if (appUser.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Person> update(@PathVariable("id") String id, @RequestBody Person item) {
@@ -97,7 +114,7 @@ class PersonController {
         }
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
         try {
             repository.deleteById(id);

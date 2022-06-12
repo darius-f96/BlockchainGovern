@@ -3,6 +3,10 @@ package floread.backendapi.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 
@@ -17,6 +21,9 @@ public class County implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"CountyId\"")
 	private String countyId;
 

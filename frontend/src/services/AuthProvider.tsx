@@ -1,10 +1,9 @@
-
 interface parameters {
     username : any
     password:any
 }
-
 const authProvider = {
+    
     login: async ({ username, password } : parameters) => {
         const request = new Request('http://localhost:8080/appUser/signin', {
             method: 'POST',
@@ -24,6 +23,7 @@ const authProvider = {
             })
             .then(auth => {
                 localStorage.setItem('auth', JSON.stringify(auth));
+              
             })
             .catch(() => {
                 throw new Error('Network error');

@@ -3,6 +3,10 @@ package floread.backendapi.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 /**
  * The persistent class for the "CompanyContractCompany" database table.
@@ -15,6 +19,9 @@ public class CompanyContractCompany implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"CompanyContractCompanyId\"")
 	private String companyContractCompanyId;
 
@@ -35,10 +42,6 @@ public class CompanyContractCompany implements Serializable {
 	@ManyToOne
 	private Company company2;
 
-	//bi-directional many-to-one association to Contract
-	@ManyToOne
-	private Contract contract;
-
 	public CompanyContractCompany() {
 	}
 
@@ -50,7 +53,7 @@ public class CompanyContractCompany implements Serializable {
 		this.companyContractCompanyId = companyContractCompanyId;
 	}
 
-	public Object getCompanyId1() {
+	public String getCompanyId1() {
 		return this.companyId1;
 	}
 
@@ -58,7 +61,7 @@ public class CompanyContractCompany implements Serializable {
 		this.companyId1 = companyId1;
 	}
 
-	public Object getCompanyId2() {
+	public String getCompanyId2() {
 		return this.companyId2;
 	}
 
@@ -66,7 +69,7 @@ public class CompanyContractCompany implements Serializable {
 		this.companyId2 = companyId2;
 	}
 
-	public Object getContractId() {
+	public String getContractId() {
 		return this.contractId;
 	}
 
@@ -88,14 +91,6 @@ public class CompanyContractCompany implements Serializable {
 
 	public void setCompany2(Company company2) {
 		this.company2 = company2;
-	}
-
-	public Contract getContract() {
-		return this.contract;
-	}
-
-	public void setContract(Contract contract) {
-		this.contract = contract;
 	}
 
 }

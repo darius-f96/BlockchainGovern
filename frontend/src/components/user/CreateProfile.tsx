@@ -1,18 +1,20 @@
 import { Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material"
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import React from "react"
 import { Form } from "react-admin"
-import { PersonEntity } from "../utils/definitions"
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import SpringBootRequest from "../services/SpringBootRequest";
+import { Navigate } from "react-router-dom"
+import SpringBootRequest from "../../services/SpringBootRequest"
+import { PersonEntity } from "../../utils/definitions"
 
-export const ProfileForm = (props: {rec: PersonEntity }) => {
-    const [value, setValue] = React.useState<Date | null>(props.rec.birthDate)
-    const [salutation, setSalutation] = React.useState<string>(props.rec.salutation)
-    const [gender, setGender] = React.useState<string>(props.rec.gender)
-    const [firstname, setFirstname] = React.useState<string>(props.rec.firstname)
-    const [lastname, setLastname] = React.useState<string>(props.rec.lastname)
+
+export const CreateProfile = () => {
+    const [value, setValue] = React.useState<Date | null>(null)
+    const [salutation, setSalutation] = React.useState<string>('')
+    const [gender, setGender] = React.useState<string>('')
+    const [firstname, setFirstname] = React.useState<string>('')
+    const [lastname, setLastname] = React.useState<string>('')
+    const [personCode, setPersonCode] = React.useState<string>('')
       
     const handleChange = (newValue: Date | null) => {
         setValue(newValue);
@@ -32,21 +34,40 @@ export const ProfileForm = (props: {rec: PersonEntity }) => {
     const handleChangeLastname = (e : React.ChangeEvent<HTMLInputElement>) =>{
         setLastname(e.currentTarget.value)
     }
+    const handleChangePersonCode = (e : React.ChangeEvent<HTMLInputElement>) =>{
+        setPersonCode(e.currentTarget.value)
+    }
 
     const saveData = () => {
-        props.rec.birthDate = value
-        props.rec.firstname = lastname
-        props.rec.firstname = firstname
-        props.rec.gender = gender
-        props.rec.salutation = salutation
-        SpringBootRequest(`person/${props.rec.id}`, "PUT", props.rec)
+        let rec : PersonEntity = {
+            AppUserId : '',
+            birthDate : null,
+            firstname : '',
+            gender : '',
+            salutation : '',
+            id : '',
+            companyId : '',
+            lastname : '',
+            personCode: ''
+        }
+        rec.birthDate = value
+        rec.lastname = lastname
+        rec.firstname = firstname
+        rec.gender = gender
+        rec.salutation = salutation
+        rec.personCode = personCode
+        SpringBootRequest(`person/`, "POST", rec).then(response=>{
+            window.location.reload();
+        })
      }
     return(
+        <>
         <div style={{marginTop:40}}>
             <Form onSubmit={saveData}>  
-                <TextField onChange={handleChangeSalutation} id="outlined-basic" label="Salutation" variant='outlined' defaultValue={props.rec.salutation}/><br/>
-                <TextField onChange={handleChangeFirstname} id="outlined-basic" label="Firstname" variant='outlined' defaultValue={props.rec.firstname}/><br/>
-                <TextField onChange={handleChangeLastname} id="outlined-basic" label="Lastname" variant='outlined' defaultValue={props.rec.lastname}/><br/>
+                <TextField onChange={handleChangeSalutation} id="outlined-basic" label="Salutation" variant='outlined' /><br/>
+                <TextField onChange={handleChangeFirstname} id="outlined-basic" label="Firstname" variant='outlined' /><br/>
+                <TextField onChange={handleChangeLastname} id="outlined-basic" label="Lastname" variant='outlined' /><br/>
+                <TextField onChange={handleChangePersonCode} id="outlined-basic" label="Person Code" variant='outlined'/><br/>
                 <FormControl sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel>Gender</InputLabel>
                 <Select
@@ -73,5 +94,6 @@ export const ProfileForm = (props: {rec: PersonEntity }) => {
 
             </Form>
         </div>
+        </>
     )
 }

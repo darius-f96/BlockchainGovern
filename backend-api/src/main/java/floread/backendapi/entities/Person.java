@@ -48,6 +48,9 @@ public class Person implements Serializable {
 	@Column(name="\"Salutation\"")
 	private String salutation;
 
+	@Column(name="\"PersonCode\"")
+	private String personCode;
+
 	//bi-directional many-to-one association to AppUser
 	@ManyToOne
 	private AppUser appUser;
@@ -69,6 +72,13 @@ public class Person implements Serializable {
 
 	public void setPersonId(String personId) {
 		this.personId = personId;
+	}
+
+	public String getPersonCode(){
+		return this.personCode;
+	}
+	public void setPersonCode(String personCode){
+		this.personCode = personCode;
 	}
 
 	public Object getAppUserId() {
