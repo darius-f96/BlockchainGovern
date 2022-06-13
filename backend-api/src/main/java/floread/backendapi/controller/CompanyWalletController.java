@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.CompanyDAO;
 import floread.backendapi.dao.CompanyWalletDAO;
+import floread.backendapi.dao.RoleTypeDAO;
 import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
@@ -40,6 +41,8 @@ class CompanyWalletController {
     CompanyDAO companyDAO;
     @Autowired
     UserRoleDAO userRoleDAO;
+    @Autowired
+    RoleTypeDAO roleTypeDAO;
 
     @GetMapping
     public ResponseEntity<List<CompanyWallet>> getAll() {
@@ -70,45 +73,66 @@ class CompanyWalletController {
 
     @PostMapping
     public ResponseEntity<CompanyWallet> create(@RequestBody CompanyWallet item, Principal principal) {
-        Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
-        if (appUser.isPresent()) {
-            Optional<Company> company1 = companyDAO.findByCui(item.getCompanyId());
-            if (company1.isPresent()){
-                Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company1.get().getCompanyId(), appUser.get().getAppUserId());
-                if (uRole.isPresent() && uRole.get().getRoleType().getRoleCode() == "ADMIN" || uRole.get().getRoleType().getRoleCode() == "HR"){
-                    try {
-                        CompanyWallet savedItem = repository.save(item);
-                        return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
-                    } catch (Exception e) {
-                        return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
-                    }
-                }
-            }
-            else {return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);}
+        
+        if (isUserAllowed(principal, item))
+        {
+            try {
+                CompanyWallet savedItem = repository.save(item);
+                return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }   
         }
         return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
     }
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CompanyWallet> update(@PathVariable("id") String id, @RequestBody CompanyWallet item) {
+    public ResponseEntity<CompanyWallet> update(@PathVariable("id") String id, @RequestBody CompanyWallet item, Principal principal) {
         Optional<CompanyWallet> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
-            CompanyWallet existingItem = existingItemOptional.get();
-            System.out.println("TODO for developer - update logic is unique to entity and must be implemented manually.");
-            //existingItem.setSomeField(item.getSomeField());
-            return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+            if (isUserAllowed(principal, item)){
+                CompanyWallet existingItem = existingItemOptional.get();
+                existingItem.setWalletDescription(item.getWalletDescription());
+                existingItem.setWalletCode(item.getWalletCode());
+                return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+            }
+            else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
-        try {
-            repository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id, Principal principal) {
+        Optional<CompanyWallet> item = repository.findById(id);
+        if (item.isPresent()){
+            if (isUserAllowed(principal, item.get())){
+                try {
+                    repository.deleteById(id);
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                } catch (Exception e) {
+                    return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+                }
+            }
+            else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    private Boolean isUserAllowed(Principal principal, CompanyWallet item){
+        //this breaks if the role types are not added to db     
+        final String ROLETYPEID_ADMIN = roleTypeDAO.findByRoleCode("ADMIN").get().getRoleTypeId();
+        final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
+        Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
+        if (appUser.isPresent()) {
+            Optional<Company> company = companyDAO.findByCui(item.getCompanyId());
+            if (company.isPresent()){
+                Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company.get().getCompanyId(), appUser.get().getAppUserId());
+                if (uRole.isPresent() && (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR))){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

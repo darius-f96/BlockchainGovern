@@ -30,6 +30,7 @@ import floread.backendapi.dao.RoleTypeDAO;
 import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
+import floread.backendapi.entities.CompanyContractCompany;
 import floread.backendapi.entities.UserRole;
 
 @RestController
@@ -57,6 +58,21 @@ class CompanyController {
             Page<Company> companyPage;
             companyPage = repository.findAll(paging);
             items = companyPage.getContent();
+
+            //remapping companyid to cui
+            for (Company el : items){
+                for (CompanyContractCompany remap : el.getCompanyContractCompanies1()){
+                    if (el.getCompanyId().equals(remap.getCompanyId1())){
+                        remap.setCompanyId1(el.getCui());
+                    }
+                    Optional<Company> c2 = repository.findById(remap.getCompanyId2());
+                    if (c2.isPresent()){
+                        remap.setCompanyId2(c2.get().getCui());
+                    }
+                    
+                }
+            }
+
             Map<String, Object> response = new HashMap<>();
             
             response.put("companies", items);
@@ -103,29 +119,54 @@ class CompanyController {
     }
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Company> update(@PathVariable("id") String id, @RequestBody Company item) {
+    public ResponseEntity<Company> update(@PathVariable("id") String id, @RequestBody Company item, Principal principal) {
         Optional<Company> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
             Company existingItem = existingItemOptional.get();
-            existingItem.setCompanyAddresses(item.getCompanyAddresses());
-            existingItem.setCompanyContractCompanies1(item.getCompanyContractCompanies1());
-            existingItem.setCompanyContractCompanies2(item.getCompanyContractCompanies2());
-            existingItem.setName(item.getName());
-            existingItem.setDescription(item.getDescription());
-            System.out.println("still have to adjust company update");
-            return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+            if (isUserAllowed(principal, existingItem)){
+                existingItem.setCompanyAddresses(item.getCompanyAddresses());
+                existingItem.setCompanyContractCompanies1(item.getCompanyContractCompanies1());
+                existingItem.setCompanyContractCompanies2(item.getCompanyContractCompanies2());
+                existingItem.setName(item.getName());
+                existingItem.setDescription(item.getDescription());
+                System.out.println("still have to adjust company update");
+                return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+            }
+            else return new ResponseEntity<Company>(HttpStatus.UNAUTHORIZED);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
-        try {
-            repository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id, Principal principal) {
+        Optional<Company> item = repository.findById(id);
+        if (item.isPresent()){
+            if (isUserAllowed(principal, item.get())){
+                try {
+                    repository.deleteById(id);
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                } catch (Exception e) {
+                    return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+                }
+            }
+            else return new ResponseEntity<HttpStatus>(HttpStatus.UNAUTHORIZED);
         }
+        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+       
+    }
+
+    private Boolean isUserAllowed(Principal principal, Company item){
+         //this breaks if the role types are not added to db     
+         final String ROLETYPEID_ADMIN = roleTypeDAO.findByRoleCode("ADMIN").get().getRoleTypeId();
+         final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
+        Optional<AppUser> appUser = appuserRepository.findByUsername(principal.getName());
+        if (appUser.isPresent()) {
+            Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(item.getCompanyId(), appUser.get().getAppUserId());
+            if (uRole.isPresent() && (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR))){
+                return true;
+            }
+        }
+        return false;
     }
 }

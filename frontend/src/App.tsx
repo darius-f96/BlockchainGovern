@@ -16,6 +16,7 @@ import { CreateProfile } from './components/user/CreateProfile';
 
 function App() {
   const dataProvider = SpringBootDataProvider("http://localhost:8080")
+
   return (
     <ErrorBoundary>
       <div className="App">

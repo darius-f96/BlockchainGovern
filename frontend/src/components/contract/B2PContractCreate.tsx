@@ -3,14 +3,14 @@ import React, { useState } from "react"
 import { useRecordContext } from "react-admin"
 import { Form } from "react-bootstrap"
 import SpringBootRequest from "../../services/SpringBootRequest"
-import { B2BContract } from "../../utils/definitions"
+import { B2BContract, B2PContract } from "../../utils/definitions"
 import { switchDisplay } from "../../utils/switchDisplay"
 
-export const B2BContractCreate = ( ) =>{
+export const B2PContractCreate = ( ) =>{
     const record = useRecordContext()
     const [contractCode, setContractCode] = useState<string>('')
     const [description, setDescription] = useState<string>('')
-    const [companyid2, setCompanyid2] = useState<string>('')
+    const [appUserId, setAppUserId] = useState<string>('')
     const [terms, setTerms] = useState<string>('')
     const [divDisplay, setDivDisplay] = useState<string>('none')
     const accepted = false;
@@ -21,24 +21,24 @@ export const B2BContractCreate = ( ) =>{
     const handleChangeDescription = (e:React.ChangeEvent<HTMLInputElement>) => {
         setDescription(e.currentTarget.value)
     }
-    const handleChangeCompanyid2 = (e:React.ChangeEvent<HTMLInputElement>) => {
-        setCompanyid2(e.currentTarget.value)
+    const handleChangeAppUserId = (e:React.ChangeEvent<HTMLInputElement>) => {
+        setAppUserId(e.currentTarget.value)
     }
     const handleChangeTerms = (e:React.ChangeEvent<HTMLInputElement>) => {
         setTerms(e.currentTarget.value)
     }
 
     const saveData = () => {
-        const payload:B2BContract ={
+        const payload:B2PContract ={
             accepted : accepted,
-            companyId1 : record.cui,
-            companyId2 : companyid2,
+            companyId : record.cui,
+            appUserId : appUserId,
             terms : terms,
             id : '',
             contractCode : contractCode,
             description : description
         }
-        SpringBootRequest(`companyContractCompany/`, "POST", payload).then(response=>{
+        SpringBootRequest(`companyContractPerson/`, "POST", payload).then(response=>{
         //     window.location.reload();
             console.log(response)
         })
@@ -52,7 +52,7 @@ export const B2BContractCreate = ( ) =>{
                 <Form onSubmit={saveData}>
                     <TextField onChange={handleChangeContractCode} id="outlined-basic" label="Contract Code" variant='outlined' />
                     <TextField disabled id="outlined-basic" label="CUI" variant='outlined' defaultValue={record.cui}/>
-                    <TextField onChange={handleChangeCompanyid2} id="outlined-basic" label="Contractor CUI" variant='outlined' />
+                    <TextField onChange={handleChangeAppUserId} id="outlined-basic" label="App User Id" variant='outlined' />
                     <TextField onChange={handleChangeTerms} id="outlined-basic" label="Terms" variant='outlined' />
                     <TextField disabled id="outlined-basic" label="Accepted" variant='outlined' defaultValue={accepted}/>
                     <TextField onChange={handleChangeDescription} id="outlined-basic" label="Description" variant='outlined' /><br/>

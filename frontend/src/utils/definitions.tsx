@@ -28,16 +28,20 @@ export interface CompanyEntity {
 export interface B2BContract {
     id : string;
     contractCode : string;
-    companyid1 : string;
-    companyid2 : string;
+    companyId1 : string;
+    companyId2 : string;
     description : string;
+    terms : string;
+    accepted : boolean;
 }
 export interface B2PContract {
     id : string;
     contractCode : string;
-    personid : string;
-    companyid : string;
+    appUserId : string;
+    companyId : string;
     description : string;
+    terms : string;
+    accepted : boolean;
 }
 
 export interface AppUserData {

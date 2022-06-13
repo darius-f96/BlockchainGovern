@@ -8,7 +8,7 @@ export const ConnectWallet = () => {
     if (typeof provider !== 'undefined'){
 
         provider.request({
-                method: 'eth_requestaccounts'
+                method: 'eth_requestAccounts'
             }).then( (accounts)=>{
                 selectedAccount = accounts[0]
                 console.log(`Selected account is ${selectedAccount}`)
@@ -20,5 +20,5 @@ export const ConnectWallet = () => {
             console.log(`Newly selected account is ${selectedAccount}`)})
     }
 
-    const web3 = new Web3(provider)
+    return new Web3(provider)
 }

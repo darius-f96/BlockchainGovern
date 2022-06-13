@@ -20,8 +20,6 @@ public class CompanyWallet implements Serializable {
 
 	@Id
 	@JsonProperty("id")
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	@GeneratedValue(generator = "UUID")
 	@Column(name="\"CompanyWalletId\"")
 	private String companyWalletId;
 
@@ -30,6 +28,12 @@ public class CompanyWallet implements Serializable {
 
 	@Column(name="\"WalletId\"")
 	private String walletId;
+
+	@Column(name="\"WalletDescription\"")
+	private String walletDescription;
+
+	@Column(name="\"WalletCode\"")
+	private String walletCode;
 
 	//bi-directional many-to-one association to Company
 	@ManyToOne
@@ -57,9 +61,21 @@ public class CompanyWallet implements Serializable {
 	public String getWalletId() {
 		return this.walletId;
 	}
+	public String getWalletDescription() {
+		return this.walletDescription;
+	}
+	public String getWalletCode() {
+		return this.walletCode;
+	}
 
 	public void setWalletId(String walletId) {
 		this.walletId = walletId;
+	}
+	public void setWalletDescription(String walletDescription) {
+		this.walletDescription = walletDescription;
+	}
+	public void setWalletCode(String walletCode) {
+		this.walletCode = walletCode;
 	}
 
 	public Company getCompany() {

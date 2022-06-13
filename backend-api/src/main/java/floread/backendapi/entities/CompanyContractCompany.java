@@ -34,6 +34,15 @@ public class CompanyContractCompany implements Serializable {
 	@Column(name="\"ContractId\"")
 	private String contractId;
 
+	@Column(name="\"Terms\"")
+	private String terms;
+
+	@Column(name="\"ContractCode\"")
+	private String contractCode;
+
+	@Column(name="\"Accepted\"")
+	private Boolean accepted;
+
 	//bi-directional many-to-one association to Company
 	@ManyToOne
 	private Company company1;
@@ -68,6 +77,14 @@ public class CompanyContractCompany implements Serializable {
 	public void setCompanyId2(String companyId2) {
 		this.companyId2 = companyId2;
 	}
+	
+	public String getContractCode() {
+		return this.contractCode;
+	}
+
+	public void setContractCode(String contractCode) {
+		this.contractCode = contractCode;
+	}
 
 	public String getContractId() {
 		return this.contractId;
@@ -91,6 +108,21 @@ public class CompanyContractCompany implements Serializable {
 
 	public void setCompany2(Company company2) {
 		this.company2 = company2;
+	}
+	
+	public void setTerms (String terms){
+		this.terms = terms;
+	}
+
+	public String getTerms (){
+		return this.terms;
+	}
+
+	public void setAccepted(Boolean accepted){
+		this.accepted = accepted;
+	}
+	public Boolean getAccepted(){
+		return this.accepted;
 	}
 
 }

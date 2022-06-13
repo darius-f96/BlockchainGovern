@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.CompanyContractPersonDAO;
 import floread.backendapi.dao.CompanyDAO;
+import floread.backendapi.dao.RoleTypeDAO;
 import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
@@ -40,6 +41,8 @@ class CompanyContractPersonController {
     AppUserDAO appUserDAO;
     @Autowired
     UserRoleDAO userRoleDAO;
+    @Autowired
+    RoleTypeDAO roleTypeDAO;
 
     @GetMapping
     public ResponseEntity<List<CompanyContractPerson>> getAll() {
@@ -70,12 +73,16 @@ class CompanyContractPersonController {
 
     @PostMapping
     public ResponseEntity<CompanyContractPerson> create(@RequestBody CompanyContractPerson item, Principal principal) {
+        //this breaks if the role types are not added to db     
+        final String ROLETYPEID_ADMIN = roleTypeDAO.findByRoleCode("ADMIN").get().getRoleTypeId();
+        final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
         Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
         if (appUser.isPresent()) {
             Optional<Company> company1 = companyDAO.findByCui(item.getCompanyId());
             if (company1.isPresent()){
                 Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company1.get().getCompanyId(), appUser.get().getAppUserId());
-                if (uRole.isPresent() && uRole.get().getRoleType().getRoleCode() == "ADMIN" || uRole.get().getRoleType().getRoleCode() == "HR"){
+                if (!uRole.isPresent()) {return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+                if (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR)){
                     try {
                         item.setCompanyId(company1.get().getCompanyId());
                         item.setAppUserId(appUser.get().getAppUserId());
@@ -91,26 +98,49 @@ class CompanyContractPersonController {
         return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
     }
 
+    //only person can accept contract
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CompanyContractPerson> update(@PathVariable("id") String id, @RequestBody CompanyContractPerson item) {
+    public ResponseEntity<CompanyContractPerson> update(@PathVariable("id") String id, @RequestBody CompanyContractPerson item, Principal principal) {
+        Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
         Optional<CompanyContractPerson> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
-            CompanyContractPerson existingItem = existingItemOptional.get();
-            System.out.println("TODO for developer - update logic is unique to entity and must be implemented manually.");
-            //existingItem.setSomeField(item.getSomeField());
-            return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+            if (appUser.isPresent() && appUser.get().getAppUserId() == item.getAppUserId()){
+                CompanyContractPerson existingItem = existingItemOptional.get();
+                existingItem.setAccepted(item.getAccepted());
+                return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+            }
+            else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
-        try {
-            repository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id, Principal principal) {
+        //this breaks if the role types are not added to db     
+        final String ROLETYPEID_ADMIN = roleTypeDAO.findByRoleCode("ADMIN").get().getRoleTypeId();
+        final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
+        Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
+        CompanyContractPerson item = repository.findById(id).get();
+        if (appUser.isPresent()) {
+            Optional<Company> company1 = companyDAO.findByCui(item.getCompanyId());
+            if (company1.isPresent()){
+                Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company1.get().getCompanyId(), appUser.get().getAppUserId());
+                if (!uRole.isPresent()) {return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+                if (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR) || appUser.get().getAppUserId() == item.getAppUserId()){
+
+                    try {
+                        repository.deleteById(id);
+                        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                    } catch (Exception e) {
+                        return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+                    }
+                }
+                else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            else return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
+        else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
