@@ -8,17 +8,13 @@ import {
     Datagrid,
     TextField,
     EditButton,
-    SimpleList
+    SimpleList,
+    ShowButton,
+    FunctionField
 } from 'react-admin';
+import { userModifyCompanyAllowed } from '../../utils/isUserAllowed';
+import { ListActions } from '../../utils/ListActions';
 import { CompanyDetails } from './CompanyDetails';
-
-const ListActions = () => (
-    <TopToolbar>
-        <CreateButton/>
-        <ExportButton/>
-        
-    </TopToolbar>
-);
 
 export const CompanyList = () => (
 
@@ -32,8 +28,9 @@ export const CompanyList = () => (
             <TextField source="cui" />
             <TextField source="regIdentifier" />
             <TextField source="description" />
-            <EditButton/>
-            
+            {/* <EditButton/> */}
+            <FunctionField render={(record:any) => userModifyCompanyAllowed({userRoles:record.userRoles}) && <EditButton/> } />
+            <ShowButton/>
         </Datagrid>
     </List>
 );

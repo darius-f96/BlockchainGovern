@@ -31,6 +31,7 @@ import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
 import floread.backendapi.entities.CompanyContractCompany;
+import floread.backendapi.entities.CompanyContractPerson;
 import floread.backendapi.entities.UserRole;
 
 @RestController
@@ -58,20 +59,10 @@ class CompanyController {
             Page<Company> companyPage;
             companyPage = repository.findAll(paging);
             items = companyPage.getContent();
-
-            //remapping companyid to cui
             for (Company el : items){
-                for (CompanyContractCompany remap : el.getCompanyContractCompanies1()){
-                    if (el.getCompanyId().equals(remap.getCompanyId1())){
-                        remap.setCompanyId1(el.getCui());
-                    }
-                    Optional<Company> c2 = repository.findById(remap.getCompanyId2());
-                    if (c2.isPresent()){
-                        remap.setCompanyId2(c2.get().getCui());
-                    }
-                    
-                }
+                remapCompanyIdToCUI(el);
             }
+            
 
             Map<String, Object> response = new HashMap<>();
             
@@ -90,6 +81,7 @@ class CompanyController {
         Optional<Company> existingItemOptional = repository.findById(id);
 
         if (existingItemOptional.isPresent()) {
+            remapCompanyIdToCUI(existingItemOptional.get());
             return new ResponseEntity<>(existingItemOptional.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -168,5 +160,46 @@ class CompanyController {
             }
         }
         return false;
+    }
+
+    private void remapCompanyIdToCUI (Company el){
+        for (CompanyContractCompany remap : el.getCompanyContractCompanies1()){
+            if (el.getCompanyId().equals(remap.getCompanyId1())){
+                remap.setCompanyId1(el.getCui());
+            }
+            else{
+                Optional<Company> c1 = repository.findById(remap.getCompanyId1());
+                if (c1.isPresent()){
+                    remap.setCompanyId1(c1.get().getCui());
+                }
+            }
+            
+            if (el.getCompanyId().equals(remap.getCompanyId2())){
+                remap.setCompanyId2(el.getCui());
+            }
+            else{
+                Optional<Company> c2 = repository.findById(remap.getCompanyId2());
+                if (c2.isPresent()){
+                    remap.setCompanyId2(c2.get().getCui());
+                }
+            }
+            
+        }
+        for (CompanyContractPerson remap : el.getCompanyContractPersons()){
+            if (el.getCompanyId().equals(remap.getCompanyId())){
+                remap.setCompanyId(el.getCui());
+            }
+            else{
+                Optional<Company> c1 = repository.findById(remap.getCompanyId());
+                if (c1.isPresent()){
+                    remap.setCompanyId(c1.get().getCui());
+                }
+            }
+            
+            Optional<AppUser> u = appuserRepository.findById(remap.getAppUserId());
+            if (u.isPresent()){
+                remap.setAppUserId(u.get().getUsername());
+            }
+        }
     }
 }

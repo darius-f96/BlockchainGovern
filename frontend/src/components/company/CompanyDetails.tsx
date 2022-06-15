@@ -32,7 +32,7 @@ export const CompanyDetails = () => {
                         return <Business2BusinessContract key={index} contract={rec}/> 
                     })}
                 </Typography>
-                <B2BContractCreate/>
+                {/* <B2BContractCreate/> */}
             </div><br/>
             <div>
                 <Typography variant="h6">B2P Contracts</Typography>
@@ -41,7 +41,7 @@ export const CompanyDetails = () => {
                         return <Business2PersonContract key={index} contract={rec}/> 
                     })}
                 </Typography>
-                <B2PContractCreate/>
+                {/* <B2PContractCreate/> */}
             </div>
         </div>
     );

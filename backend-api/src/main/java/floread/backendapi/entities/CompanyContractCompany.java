@@ -1,6 +1,8 @@
 package floread.backendapi.entities;
 
 import java.io.Serializable;
+import java.util.List;
+
 import javax.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -43,6 +45,9 @@ public class CompanyContractCompany implements Serializable {
 	@Column(name="\"Accepted\"")
 	private Boolean accepted;
 
+	@Column(name="\"ContractDetailsId\"")
+	private String contractDetailsId;
+
 	//bi-directional many-to-one association to Company
 	@ManyToOne
 	private Company company1;
@@ -50,6 +55,9 @@ public class CompanyContractCompany implements Serializable {
 	//bi-directional many-to-one association to Company
 	@ManyToOne
 	private Company company2;
+
+	@OneToMany(mappedBy = "contractDetailsId")
+	private List<ContractDetails> contractDetails;
 
 	public CompanyContractCompany() {
 	}
@@ -123,6 +131,32 @@ public class CompanyContractCompany implements Serializable {
 	}
 	public Boolean getAccepted(){
 		return this.accepted;
+	}
+	public List<ContractDetails> getContractDetails(){
+		return this.contractDetails;
+	}
+	public void setContractDetails (List<ContractDetails> contractDetails){
+		this.contractDetails = contractDetails;
+	}
+	public ContractDetails addContractDetails(ContractDetails cDetails) {
+		getContractDetails().add(cDetails);
+		cDetails.setCompanyContractCompany(this);
+
+		return cDetails;
+	}
+
+	public ContractDetails removeContractDetails(ContractDetails cDetails) {
+		getContractDetails().remove(cDetails);
+		cDetails.setCompanyContractCompany(null);
+
+		return cDetails;
+	}
+
+	public String getContractDetailsId(){
+		return this.contractDetailsId;
+	}
+	public void setContractDetailsId(String contractDetailsId){
+		this.contractDetailsId = contractDetailsId;
 	}
 
 }

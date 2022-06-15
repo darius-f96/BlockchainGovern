@@ -57,7 +57,7 @@ public class UserRole implements Serializable {
 		this.userRoleId = userRoleId;
 	}
 
-	public Object getAppUserId() {
+	public String getAppUserId() {
 		return this.appUserId;
 	}
 
@@ -65,7 +65,7 @@ public class UserRole implements Serializable {
 		this.appUserId = appUserId;
 	}
 
-	public Object getCompanyId() {
+	public String getCompanyId() {
 		return this.companyId;
 	}
 
@@ -73,7 +73,7 @@ public class UserRole implements Serializable {
 		this.companyId = companyId;
 	}
 
-	public Object getRoleTypeId() {
+	public String getRoleTypeId() {
 		return this.roleTypeId;
 	}
 

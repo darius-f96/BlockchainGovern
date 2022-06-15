@@ -8,7 +8,12 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -134,7 +139,9 @@ public class Company implements Serializable {
 	}
 
 	public List<CompanyContractCompany> getCompanyContractCompanies1() {
-		return this.companyContractCompanies1;
+		List<CompanyContractCompany> joinedList = new ArrayList<>();
+		Stream.of(this.companyContractCompanies1, this.companyContractCompanies2).forEach(joinedList::addAll);
+		return joinedList;
 	}
 
 	public void setCompanyContractCompanies1(List<CompanyContractCompany> companyContractCompanies1) {

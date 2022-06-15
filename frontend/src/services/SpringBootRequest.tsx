@@ -1,6 +1,6 @@
 import { auth } from '../utils/auth';
 
-const SpringBootRequest = async (path:string, method:string, body:object ) => {
+const SpringBootRequest = async (path:string, method:string, body:object|undefined ) => {
     const request = new Request(`http://localhost:8080/${path}`, {
             method: method,
             body: method!=='GET'?JSON.stringify(body) :null,

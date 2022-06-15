@@ -12,5 +12,6 @@ public class JWTResponse implements Serializable{
     public String getToken() {
        return token;
     }
+
     
 }

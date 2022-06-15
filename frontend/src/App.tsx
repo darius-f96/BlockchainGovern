@@ -13,10 +13,13 @@ import { CompanyCreate } from './components/company/CompanyCreate';
 import { CompanyList } from './components/company/CompanyList';
 import { CompanyEdit } from './components/company/CompanyEdit';
 import { CreateProfile } from './components/user/CreateProfile';
+import { CompanyShow } from './components/company/CompanyShow';
+import SpringBootRequest from './services/SpringBootRequest';
 
 function App() {
   const dataProvider = SpringBootDataProvider("http://localhost:8080")
-
+  SpringBootRequest('roleType', 'GET', undefined).then(response => Object.values(response).map((obj:any) => localStorage.setItem(obj.roleCode, obj.id)))
+  
   return (
     <ErrorBoundary>
       <div className="App">
@@ -25,8 +28,7 @@ function App() {
                   authProvider={authProvider}
                   layout={MyAppLayout}
           >
-            <Button></Button>
-            <Resource name='company' list={CompanyList} create={CompanyCreate} edit={CompanyEdit}></Resource>
+            <Resource name='company' list={CompanyList} create={CompanyCreate} edit={CompanyEdit} show={CompanyShow}></Resource>
             <CustomRoutes>
               
               <Route path="/profile" element={<ProfileComponent />} />

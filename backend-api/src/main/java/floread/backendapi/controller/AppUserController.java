@@ -71,11 +71,6 @@ class AppUserController {
         return ResponseEntity.ok(new JWTResponse(jwt));
     }
 
-    @GetMapping("login")
-    public String getLogin(){
-        return "login";
-    }
-
     @RequestMapping(value = "/userContext", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Map<String, Object>> currentUserName(Principal principal) {
@@ -84,6 +79,7 @@ class AppUserController {
         if (appUser.isPresent()) {
             response.put("username", appUser.get().getUsername());
             response.put("email", appUser.get().getEmail());
+            response.put("appUserId", appUser.get().getAppUserId());
             response.put("persons", appUser.get().getPersons());
             response.put("userRoles", appUser.get().getUserRoles());
         }

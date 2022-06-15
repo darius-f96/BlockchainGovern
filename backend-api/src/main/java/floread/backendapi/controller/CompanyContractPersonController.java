@@ -27,6 +27,7 @@ import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
 import floread.backendapi.entities.CompanyContractPerson;
+import floread.backendapi.entities.RoleType;
 import floread.backendapi.entities.UserRole;
 
 @RestController
@@ -83,14 +84,19 @@ class CompanyContractPersonController {
                 Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company1.get().getCompanyId(), appUser.get().getAppUserId());
                 if (!uRole.isPresent()) {return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
                 if (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR)){
-                    try {
-                        item.setCompanyId(company1.get().getCompanyId());
-                        item.setAppUserId(appUser.get().getAppUserId());
-                        CompanyContractPerson savedItem = repository.save(item);
-                        return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
-                    } catch (Exception e) {
-                        return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+                    Optional<AppUser> contractor = appUserDAO.findByUsername(item.getAppUserId());
+                    if (contractor.isPresent()){
+                        try {
+                            item.setCompanyId(company1.get().getCompanyId());
+                            item.setAppUserId(contractor.get().getAppUserId());
+                            CompanyContractPerson savedItem = repository.save(item);
+                            return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+                        } catch (Exception e) {
+                            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+                        }
                     }
+                    else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                    
                 }
             }
             else return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -107,6 +113,7 @@ class CompanyContractPersonController {
             if (appUser.isPresent() && appUser.get().getAppUserId() == item.getAppUserId()){
                 CompanyContractPerson existingItem = existingItemOptional.get();
                 existingItem.setAccepted(item.getAccepted());
+                addEmployeeRoleToUser(existingItem.getAppUserId(), existingItem.getCompanyId());
                 return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
             }
             else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -142,5 +149,15 @@ class CompanyContractPersonController {
             else return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
         else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    private void addEmployeeRoleToUser(String appUserId, String companyId){
+        UserRole userRole = new UserRole();
+        Optional<RoleType> roleType = roleTypeDAO.findByRoleCode("EMPLOYEE");
+        if (roleType.isPresent()){
+            userRole.setAppUserId(appUserId);
+            userRole.setRoleTypeId(roleType.get().getRoleTypeId());
+            userRole.setCompanyId(companyId);
+        }
     }
 }

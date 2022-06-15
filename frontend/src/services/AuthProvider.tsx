@@ -1,3 +1,5 @@
+import SpringBootRequest from "./SpringBootRequest";
+
 interface parameters {
     username : any
     password:any
@@ -23,7 +25,9 @@ const authProvider = {
             })
             .then(auth => {
                 localStorage.setItem('auth', JSON.stringify(auth));
-              
+                SpringBootRequest('appUser/userContext', "GET", undefined).then(resp=>{
+                    localStorage.setItem('userid', resp.appUserId)
+                })
             })
             .catch(() => {
                 throw new Error('Network error');
@@ -46,7 +50,8 @@ const authProvider = {
         return Promise.resolve();
     },
     logout: () => {
-        localStorage.removeItem('auth');
+        localStorage.removeItem('auth')
+        localStorage.removeItem('userid')
         return Promise.resolve();
     },
 };

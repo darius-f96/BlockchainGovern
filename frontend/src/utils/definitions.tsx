@@ -33,6 +33,7 @@ export interface B2BContract {
     description : string;
     terms : string;
     accepted : boolean;
+    contractDetails? : ContractDetails;
 }
 export interface B2PContract {
     id : string;
@@ -42,6 +43,24 @@ export interface B2PContract {
     description : string;
     terms : string;
     accepted : boolean;
+    contractDetails? : ContractDetails;
+}
+
+export interface UserRole {
+    appUserId : string;
+    companyId : string;
+    id: string;
+    roleTypeId : string
+}
+
+export interface ContractDetails {
+    id : string;
+    amount : number;
+    startDate : Date|null;
+    daysBeforeCancel : number;
+    active : boolean;
+    wireFrequency : number;
+    lastWire : Date|null;
 }
 
 export interface AppUserData {

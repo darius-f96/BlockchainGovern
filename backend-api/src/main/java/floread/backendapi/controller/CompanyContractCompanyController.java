@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.CompanyContractCompanyDAO;
 import floread.backendapi.dao.CompanyDAO;
+import floread.backendapi.dao.ContractDetailsDAO;
 import floread.backendapi.dao.RoleTypeDAO;
 import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
@@ -43,6 +44,8 @@ class CompanyContractCompanyController {
     UserRoleDAO userRoleDAO;
     @Autowired
     RoleTypeDAO roleTypeDAO;
+    @Autowired
+    ContractDetailsDAO contractDetailsDAO;
 
     @GetMapping
     public ResponseEntity<List<CompanyContractCompany>> getAll(Principal principal) {
@@ -87,6 +90,7 @@ class CompanyContractCompanyController {
                 if (!uRole.isPresent()) {return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
                 if (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR)){
                     try {
+                        System.out.println("At least it gets here");
                         item.setCompanyId1(company1.get().getCompanyId());
                         item.setCompanyId2(company2.get().getCompanyId());
                         CompanyContractCompany savedItem = repository.save(item);
