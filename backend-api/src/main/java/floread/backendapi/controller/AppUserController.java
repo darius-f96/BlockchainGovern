@@ -81,6 +81,8 @@ class AppUserController {
             response.put("email", appUser.get().getEmail());
             response.put("appUserId", appUser.get().getAppUserId());
             response.put("persons", appUser.get().getPersons());
+            response.put("personWallets", appUser.get().getPersonWallets());
+            response.put("companyContractPersons", appUser.get().getCompanyContractPersons());
             response.put("userRoles", appUser.get().getUserRoles());
         }
         if (appUser.isPresent()) {

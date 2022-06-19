@@ -59,10 +59,6 @@ public class Person implements Serializable {
 	@ManyToOne
 	private Company company;
 
-	//bi-directional many-to-one association to PersonAddress
-	@OneToMany(mappedBy="person")
-	private List<PersonAddress> personAddresses;
-
 	public Person() {
 	}
 
@@ -151,28 +147,6 @@ public class Person implements Serializable {
 
 	public void setCompany(Company company) {
 		this.company = company;
-	}
-
-	public List<PersonAddress> getPersonAddresses() {
-		return this.personAddresses;
-	}
-
-	public void setPersonAddresses(List<PersonAddress> personAddresses) {
-		this.personAddresses = personAddresses;
-	}
-
-	public PersonAddress addPersonAddress(PersonAddress personAddress) {
-		getPersonAddresses().add(personAddress);
-		personAddress.setPerson(this);
-
-		return personAddress;
-	}
-
-	public PersonAddress removePersonAddress(PersonAddress personAddress) {
-		getPersonAddresses().remove(personAddress);
-		personAddress.setPerson(null);
-
-		return personAddress;
 	}
 
 }

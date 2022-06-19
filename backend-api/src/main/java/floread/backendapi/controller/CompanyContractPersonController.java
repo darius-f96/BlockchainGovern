@@ -22,11 +22,13 @@ import org.springframework.http.MediaType;
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.CompanyContractPersonDAO;
 import floread.backendapi.dao.CompanyDAO;
+import floread.backendapi.dao.ContractDetailsDAO;
 import floread.backendapi.dao.RoleTypeDAO;
 import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
 import floread.backendapi.entities.CompanyContractPerson;
+import floread.backendapi.entities.ContractDetails;
 import floread.backendapi.entities.RoleType;
 import floread.backendapi.entities.UserRole;
 
@@ -44,6 +46,8 @@ class CompanyContractPersonController {
     UserRoleDAO userRoleDAO;
     @Autowired
     RoleTypeDAO roleTypeDAO;
+    @Autowired
+    ContractDetailsDAO contractDetailsDAO;
 
     @GetMapping
     public ResponseEntity<List<CompanyContractPerson>> getAll() {
@@ -87,6 +91,9 @@ class CompanyContractPersonController {
                     Optional<AppUser> contractor = appUserDAO.findByUsername(item.getAppUserId());
                     if (contractor.isPresent()){
                         try {
+                            ContractDetails contractDetails = contractDetailsDAO.save(item.getContractDetails());
+                            item.setContractDetailsId(contractDetails.getContractDetailsId());
+                            item.setContractDetails(contractDetails);
                             item.setCompanyId(company1.get().getCompanyId());
                             item.setAppUserId(contractor.get().getAppUserId());
                             CompanyContractPerson savedItem = repository.save(item);
@@ -107,16 +114,35 @@ class CompanyContractPersonController {
     //only person can accept contract
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CompanyContractPerson> update(@PathVariable("id") String id, @RequestBody CompanyContractPerson item, Principal principal) {
-        Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
         Optional<CompanyContractPerson> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
-            if (appUser.isPresent() && appUser.get().getAppUserId() == item.getAppUserId()){
-                CompanyContractPerson existingItem = existingItemOptional.get();
+
+            Optional<Company> company = companyDAO.findByCui(existingItemOptional.get().getCompanyId());
+            if (!company.isPresent()) 
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+            Boolean isPrivatePersonAllowed = principal.getName().equals(item.getAppUserId());
+            Boolean isUserCompanyAllowed = isUserAllowed(principal, company.get());
+
+            if (!isUserCompanyAllowed && !isPrivatePersonAllowed)
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            
+            CompanyContractPerson existingItem = existingItemOptional.get();
+            if (isPrivatePersonAllowed){
+                
+                if (!existingItem.getAccepted().equals(item.getAccepted()))
+                    addEmployeeRoleToUser(existingItem.getAppUserId(), existingItem.getCompanyId());
                 existingItem.setAccepted(item.getAccepted());
-                addEmployeeRoleToUser(existingItem.getAppUserId(), existingItem.getCompanyId());
-                return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
+                existingItem.getContractDetails().setWireToAddress(item.getContractDetails().getWireToAddress());
             }
-            else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            if (isUserCompanyAllowed){
+                existingItem.getContractDetails().setAmount(item.getContractDetails().getAmount());
+                existingItem.setContractId(item.getContractId());
+            }
+            existingItem.getContractDetails().setEndDate(item.getContractDetails().getEndDate());
+            existingItem.getContractDetails().setLastWire(item.getContractDetails().getLastWire());
+            existingItem.getContractDetails().setActive(item.getContractDetails().getActive());
+            return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
             
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -130,12 +156,12 @@ class CompanyContractPersonController {
         final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
         Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
         CompanyContractPerson item = repository.findById(id).get();
+        if (item.getAccepted()) {return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);}
         if (appUser.isPresent()) {
-            Optional<Company> company1 = companyDAO.findByCui(item.getCompanyId());
+            Optional<Company> company1 = companyDAO.findById(item.getCompanyId());
             if (company1.isPresent()){
                 Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company1.get().getCompanyId(), appUser.get().getAppUserId());
-                if (!uRole.isPresent()) {return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-                if (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR) || appUser.get().getAppUserId() == item.getAppUserId()){
+                if (uRole.isPresent() && (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR) || appUser.get().getAppUserId() == item.getAppUserId())){
 
                     try {
                         repository.deleteById(id);
@@ -144,12 +170,34 @@ class CompanyContractPersonController {
                         return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
                     }
                 }
-                else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                else if (appUser.get().getAppUserId().equals(item.getAppUserId())){
+                    try {
+                        repository.deleteById(id);
+                        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                    } catch (Exception e) {
+                        return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+                    }
+                }
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
             else return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
         else return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
+
+    private Boolean isUserAllowed(Principal principal, Company item){
+        //this breaks if the role types are not added to db     
+        final String ROLETYPEID_ADMIN = roleTypeDAO.findByRoleCode("ADMIN").get().getRoleTypeId();
+        final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
+       Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
+       if (appUser.isPresent()) {
+           Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(item.getCompanyId(), appUser.get().getAppUserId());
+           if (uRole.isPresent() && (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR))){
+               return true;
+           }
+       }
+       return false;
+   }
 
     private void addEmployeeRoleToUser(String appUserId, String companyId){
         UserRole userRole = new UserRole();
@@ -159,5 +207,6 @@ class CompanyContractPersonController {
             userRole.setRoleTypeId(roleType.get().getRoleTypeId());
             userRole.setCompanyId(companyId);
         }
+        userRoleDAO.save(userRole);
     }
 }

@@ -33,7 +33,8 @@ export interface B2BContract {
     description : string;
     terms : string;
     accepted : boolean;
-    contractDetails? : ContractDetails;
+    contractId : string;
+    contractDetails : ContractDetails;
 }
 export interface B2PContract {
     id : string;
@@ -43,7 +44,8 @@ export interface B2PContract {
     description : string;
     terms : string;
     accepted : boolean;
-    contractDetails? : ContractDetails;
+    contractId : string;
+    contractDetails : ContractDetails;
 }
 
 export interface UserRole {
@@ -57,10 +59,26 @@ export interface ContractDetails {
     id : string;
     amount : number;
     startDate : Date|null;
+    endDate : Date|null;
     daysBeforeCancel : number;
     active : boolean;
     wireFrequency : number;
     lastWire : Date|null;
+    wireToAddress: String;
+}
+export interface CompanyWallet {
+    id : string;
+    walletCode : string;
+    companyId : string;
+    walletDescription : string;
+    walletId:string;
+}
+export interface PersonWallet {
+    id : string;
+    walletCode : string;
+    appUserId : string;
+    walletDescription : string;
+    walletId:string;
 }
 
 export interface AppUserData {

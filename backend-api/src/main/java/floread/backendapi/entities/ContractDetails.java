@@ -37,15 +37,14 @@ public class ContractDetails implements Serializable {
 	@Column(name="\"StartDate\"")
 	private Date startDate;
 
+	@Column(name="\"EndDate\"")
+	private Date endDate;
+
 	@Column(name="\"Amount\"")
 	private Integer amount;
 
-	
-	@ManyToOne
-	private CompanyContractCompany companyContractCompany;
-
-    @ManyToOne
-	private CompanyContractPerson companyContractPerson;
+	@Column(name="\"WireToAddress\"")
+	private String wireToAddress;
 
 
 	public ContractDetails() {
@@ -67,10 +66,19 @@ public class ContractDetails implements Serializable {
 	public Date getStartDate (){
 		return this.startDate;
 	}
+	public Date getEndDate (){
+		return this.endDate;
+	}
 	public Integer getAmount(){
 		return this.amount;
 	}
+	public String getWireToAddress(){
+		return this.wireToAddress;
+	}
 
+	public void setWireToAddress (String wireToAddress){
+		this.wireToAddress = wireToAddress;
+	}
 	public void setWireFrequency (Integer wireFrequency){
 		this.wireFrequency = wireFrequency;
 	}
@@ -86,28 +94,15 @@ public class ContractDetails implements Serializable {
 	public void setStartDate (Date startDate){
 		this.startDate = startDate;
 	}
+	public void setEndDate (Date endDate){
+		this.endDate = endDate;
+	}
 	public void setAmount (Integer amount){
 		this.amount = amount;
 	}
 
 	public String getContractDetailsId() {
 		return this.contractDetailsId;
-	}
-
-	public CompanyContractCompany getCompanyContractCompany() {
-		return this.companyContractCompany;
-	}
-
-	public void setCompanyContractCompany(CompanyContractCompany companyContractCompany) {
-		this.companyContractCompany = companyContractCompany;
-	}
-
-	public CompanyContractPerson getCompanyContractPerson() {
-		return this.companyContractPerson;
-	}
-
-	public void setCompanyContractPerson(CompanyContractPerson companyContractPerson) {
-		this.companyContractPerson = companyContractPerson;
 	}
 
 }

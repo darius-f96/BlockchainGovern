@@ -4,37 +4,39 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract WorkContract  is Ownable{
-    address payable private employee;
+contract BusinessContract  is Ownable{
+    address payable private contractor;
     address payable private gvt;
-    address payable private health;
     uint256 private wage;
     bool private active;
+    bool private vatPayer;
     uint private startDate;
     uint private endDate;
     uint private daysBeforeCancel;
     uint private gvtTaxModifier;
-    uint private healthTaxModifier;
     uint private wireFrequency;
     uint private lastWire;
 
-    constructor(address payable _employee,
+    constructor(address payable _contractor,
                 uint256 _wage, 
                 bool _active,
                 uint _daysBeforeCancel,
                 uint _wireFrequency,
-                uint _startDate
+                uint _startDate,
+                bool _vatPayer
     )
     public {
-        employee = _employee;
+        contractor = _contractor;
         wage = _wage;
+        vatPayer = _vatPayer;
         startDate = block.timestamp;
         daysBeforeCancel = _daysBeforeCancel;
         active = _active;
         gvt = payable(0xcA908a6C2cC3F3d123be10182A922b0e22edc4D7);
-        health = payable(0x7b4c1ef7e5f8fF1D5d298Bd9ECbcfd72dbfe9E4a);
-        gvtTaxModifier = 3279;
-        healthTaxModifier = 1000;
+        if (_vatPayer)
+            gvtTaxModifier = 2000;
+        else 
+            gvtTaxModifier = 100;
         startDate = _startDate;
         wireFrequency = _wireFrequency;
     }
@@ -49,8 +51,16 @@ contract WorkContract  is Ownable{
         
     }
 
+    function getVatPayer() public view returns (bool) {
+        return vatPayer;
+    }
+
+    function setVatPayer(bool _vatPayer) public onlyOwner {
+        vatPayer = _vatPayer;
+    }
+
     function setEndDate() public {
-         if (msg.sender == owner() || msg.sender == employee)
+         if (msg.sender == owner() || msg.sender == contractor)
             endDate = block.timestamp + daysBeforeCancel;
         else
             revert("Access denied.");
@@ -62,7 +72,7 @@ contract WorkContract  is Ownable{
     }
 
     function setActive() public {
-        if (msg.sender == owner() || msg.sender == employee)
+        if (msg.sender == owner() || msg.sender == contractor)
             active = true;
         else
             revert("Access denied.");
@@ -74,15 +84,11 @@ contract WorkContract  is Ownable{
     function setgvtTaxModifier(uint _taxModifier) public onlyOwner{
         gvtTaxModifier = _taxModifier;
     }
-    function setHealthTaxModifier(uint _taxModifier) public onlyOwner{
-        healthTaxModifier = _taxModifier;
-    }
 
     function wireWage() public onlyOwner returns(bool success) {
         if (startDate < block.timestamp && active && (lastWire + wireFrequency) < block.timestamp){
-            employee.transfer(wage - (wage*gvtTaxModifier/10000) - (wage*healthTaxModifier/10000));
+            contractor.transfer(wage - (wage*gvtTaxModifier/10000));
             gvt.transfer(wage*gvtTaxModifier/10000);
-            health.transfer(wage*healthTaxModifier/10000);
             setLastWire(block.timestamp);
             success = true;
         }else {

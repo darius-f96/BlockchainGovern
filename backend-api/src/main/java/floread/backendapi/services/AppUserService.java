@@ -44,7 +44,7 @@ public class AppUserService implements UserDetailsService{
 
         appUserDao.save(appUser);
 
-        return "it works";
+        return "User registered";
     }
     
 }

@@ -61,7 +61,6 @@ interface SimpleResponse{
         break;
       }
       case GET_ONE:
-        console.log('got to' + resource)
         if (resource === 'appUser/userContext'){
           url = `${apiUrl}/${resource}`
         }
@@ -98,7 +97,6 @@ interface SimpleResponse{
       default:
         throw new Error(`Unsupported fetch action type ${type}`);
     }
-    console.log('got here to', options.body, options.method)
     return { url, options };
   };
 

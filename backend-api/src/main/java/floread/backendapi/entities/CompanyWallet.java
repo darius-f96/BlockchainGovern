@@ -20,6 +20,8 @@ public class CompanyWallet implements Serializable {
 
 	@Id
 	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"CompanyWalletId\"")
 	private String companyWalletId;
 

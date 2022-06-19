@@ -13,9 +13,23 @@ export const userModifyCompanyAllowed = (props : { userRoles:Array<UserRole>}):B
 }
 
 export const userCanAcceptContract = (props: {contract:B2PContract}):Boolean =>{
-    return (localStorage.getItem('userid') === props.contract.appUserId && !props.contract.accepted)
+    return (localStorage.getItem('username') === props.contract.appUserId && !props.contract.accepted)
+}
+export const userCanEndContract = (props: {contract:B2PContract}):Boolean =>{
+    return (localStorage.getItem('username') === props.contract.appUserId && props.contract.accepted)
+}
+export const userCanDeployContract = (props: {cui:string, contract:B2PContract}):Boolean =>{
+    return (props.cui === props.contract.companyId && props.contract.accepted)
 }
 
 export const userCanAcceptCompanyContract = (props: {companyId: string, contract:B2BContract}):Boolean =>{
     return (props.companyId === props.contract.companyId2 && !props.contract.accepted)
+}
+
+export const userCanEndCompanyContract = (props: {companyId: string, contract:B2BContract}):Boolean =>{
+    return ((props.companyId === props.contract.companyId1 || props.companyId === props.contract.companyId2) && props.contract.accepted)
+}
+
+export const userCanDeployCompanyContract = (props: {companyId: string, contract:B2BContract}):Boolean =>{
+    return (props.companyId === props.contract.companyId1 && props.contract.accepted)
 }

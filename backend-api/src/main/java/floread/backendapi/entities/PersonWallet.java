@@ -20,6 +20,8 @@ public class PersonWallet implements Serializable {
 
 	@Id
 	@JsonProperty("id")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name="\"PersonWalletId\"")
 	private String personWalletId;
 
@@ -50,7 +52,7 @@ public class PersonWallet implements Serializable {
 		this.personWalletId = personWalletId;
 	}
 
-	public Object getAppUserId() {
+	public String getAppUserId() {
 		return this.appUserId;
 	}
 
@@ -58,7 +60,7 @@ public class PersonWallet implements Serializable {
 		this.appUserId = appUserId;
 	}
 
-	public Object getWalletId() {
+	public String getWalletId() {
 		return this.walletId;
 	}
 

@@ -52,7 +52,7 @@ public class AppUser implements UserDetails {
 	private boolean enabled;
 
 	//bi-directional many-to-one association to CompanyContractPerson
-	@OneToMany(mappedBy="appUser")
+	@OneToMany(mappedBy="appUserId")
 	private List<CompanyContractPerson> companyContractPersons;
 
 	//bi-directional many-to-one association to Person

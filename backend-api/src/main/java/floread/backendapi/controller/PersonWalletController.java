@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
 import floread.backendapi.dao.AppUserDAO;
+import floread.backendapi.dao.CompanyWalletDAO;
 import floread.backendapi.dao.PersonDAO;
 import floread.backendapi.dao.PersonWalletDAO;
 import floread.backendapi.entities.AppUser;
+import floread.backendapi.entities.CompanyWallet;
 import floread.backendapi.entities.Person;
 import floread.backendapi.entities.PersonWallet;
 
@@ -34,6 +36,8 @@ class PersonWalletController {
     PersonWalletDAO repository;
     @Autowired
     AppUserDAO appUserDAO;
+    @Autowired
+    CompanyWalletDAO companyWalletDAO;
 
     @GetMapping
     public ResponseEntity<List<PersonWallet>> getAll() {
@@ -62,9 +66,28 @@ class PersonWalletController {
         }
     }
 
+    @GetMapping(value = "/userWallets", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<PersonWallet>> getByAppUserId(Principal principal){
+        
+        AppUser appUser = appUserDAO.findByUsername(principal.getName()).get(); 
+        List<PersonWallet> personWallets = repository.findByAppUserId(appUser.getAppUserId());
+        if (personWallets.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(personWallets, HttpStatus.OK);
+     
+    }
+
     @PostMapping
     public ResponseEntity<PersonWallet> create(@RequestBody PersonWallet item, Principal principal) {
         if (isUserAllowed(principal, item)){
+            Optional<PersonWallet> checkExisting = repository.findByWalletId(item.getWalletId());
+            if (checkExisting.isPresent()){
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }
+            Optional<CompanyWallet> checkExistingCompany = companyWalletDAO.findByWalletId(item.getWalletId());
+            if (checkExistingCompany.isPresent()){
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }
             try {
                 PersonWallet savedItem = repository.save(item);
                 return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
@@ -112,7 +135,7 @@ class PersonWalletController {
     
     private Boolean isUserAllowed(Principal principal, PersonWallet item){
         Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
-        if (appUser.isPresent() && appUser.get().getAppUserId() == item.getAppUserId()) {    
+        if (appUser.isPresent() && appUser.get().getAppUserId().equals(item.getAppUserId())) {    
             return true;
         }
         return false;

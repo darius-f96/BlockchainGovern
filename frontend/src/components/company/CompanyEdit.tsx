@@ -3,6 +3,7 @@ import { Edit, required, SimpleForm, TextInput, useListController, useRecordCont
 import { userModifyCompanyAllowed } from "../../utils/isUserAllowed";
 import { B2BContractCreate } from "../contract/B2BContractCreate";
 import { B2PContractCreate } from "../contract/B2PContractCreate";
+import { CompanyWalletCreate } from "../wallet/CompanyWalletCreate";
 
 export const CompanyEdit = () => {
     const data = useShowController() 
@@ -20,5 +21,6 @@ export const CompanyEdit = () => {
             </Edit>
             {userAllowed && <B2BContractCreate cui={data.record.cui}/>}
             {userAllowed && <B2PContractCreate cui={data.record.cui}/>}
+            {userAllowed && <CompanyWalletCreate id={data.record.id}/>}
         </div>
 )};

@@ -45,10 +45,6 @@ public class Company implements Serializable {
 	@Column(name="\"RegIdentifier\"")
 	private String regIdentifier;
 
-	//bi-directional many-to-one association to CompanyAddress
-	@OneToMany(mappedBy="company")
-	private List<CompanyAddress> companyAddresses;
-
 	//bi-directional many-to-one association to CompanyContractCompany
 	@OneToMany(mappedBy="companyId1")
 	private List<CompanyContractCompany> companyContractCompanies1;
@@ -114,28 +110,6 @@ public class Company implements Serializable {
 
 	public void setRegIdentifier(String regIdentifier) {
 		this.regIdentifier = regIdentifier;
-	}
-
-	public List<CompanyAddress> getCompanyAddresses() {
-		return this.companyAddresses;
-	}
-
-	public void setCompanyAddresses(List<CompanyAddress> companyAddresses) {
-		this.companyAddresses = companyAddresses;
-	}
-
-	public CompanyAddress addCompanyAddress(CompanyAddress companyAddress) {
-		getCompanyAddresses().add(companyAddress);
-		companyAddress.setCompany(this);
-
-		return companyAddress;
-	}
-
-	public CompanyAddress removeCompanyAddress(CompanyAddress companyAddress) {
-		getCompanyAddresses().remove(companyAddress);
-		companyAddress.setCompany(null);
-
-		return companyAddress;
 	}
 
 	public List<CompanyContractCompany> getCompanyContractCompanies1() {

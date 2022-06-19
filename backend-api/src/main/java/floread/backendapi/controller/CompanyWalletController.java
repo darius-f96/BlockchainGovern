@@ -22,11 +22,13 @@ import org.springframework.http.MediaType;
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.dao.CompanyDAO;
 import floread.backendapi.dao.CompanyWalletDAO;
+import floread.backendapi.dao.PersonWalletDAO;
 import floread.backendapi.dao.RoleTypeDAO;
 import floread.backendapi.dao.UserRoleDAO;
 import floread.backendapi.entities.AppUser;
 import floread.backendapi.entities.Company;
 import floread.backendapi.entities.CompanyWallet;
+import floread.backendapi.entities.PersonWallet;
 import floread.backendapi.entities.UserRole;
 
 @RestController
@@ -43,6 +45,8 @@ class CompanyWalletController {
     UserRoleDAO userRoleDAO;
     @Autowired
     RoleTypeDAO roleTypeDAO;
+    @Autowired
+    PersonWalletDAO personWalletDAO;
 
     @GetMapping
     public ResponseEntity<List<CompanyWallet>> getAll() {
@@ -73,9 +77,17 @@ class CompanyWalletController {
 
     @PostMapping
     public ResponseEntity<CompanyWallet> create(@RequestBody CompanyWallet item, Principal principal) {
-        
+
         if (isUserAllowed(principal, item))
         {
+            Optional<PersonWallet> checkExistingPersonWallet = personWalletDAO.findByWalletId(item.getWalletId());
+            if (checkExistingPersonWallet.isPresent()){
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }
+            Optional<CompanyWallet> checkExistingCompany = repository.findByWalletId(item.getWalletId());
+            if (checkExistingCompany.isPresent()){
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }
             try {
                 CompanyWallet savedItem = repository.save(item);
                 return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
@@ -125,7 +137,7 @@ class CompanyWalletController {
         final String ROLETYPEID_HR = roleTypeDAO.findByRoleCode("HR").get().getRoleTypeId();
         Optional<AppUser> appUser = appUserDAO.findByUsername(principal.getName());
         if (appUser.isPresent()) {
-            Optional<Company> company = companyDAO.findByCui(item.getCompanyId());
+            Optional<Company> company = companyDAO.findById(item.getCompanyId());
             if (company.isPresent()){
                 Optional<UserRole> uRole = userRoleDAO.findByCompanyIdAndAppUserId(company.get().getCompanyId(), appUser.get().getAppUserId());
                 if (uRole.isPresent() && (uRole.get().getRoleTypeId().equals(ROLETYPEID_ADMIN) || uRole.get().getRoleTypeId().equals(ROLETYPEID_HR))){

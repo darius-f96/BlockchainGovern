@@ -27,6 +27,7 @@ const authProvider = {
                 localStorage.setItem('auth', JSON.stringify(auth));
                 SpringBootRequest('appUser/userContext', "GET", undefined).then(resp=>{
                     localStorage.setItem('userid', resp.appUserId)
+                    localStorage.setItem('username', resp.username)
                 })
             })
             .catch(() => {
@@ -52,6 +53,7 @@ const authProvider = {
     logout: () => {
         localStorage.removeItem('auth')
         localStorage.removeItem('userid')
+        localStorage.removeItem('username')
         return Promise.resolve();
     },
 };

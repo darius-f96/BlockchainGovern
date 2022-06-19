@@ -116,7 +116,6 @@ class CompanyController {
         if (existingItemOptional.isPresent()) {
             Company existingItem = existingItemOptional.get();
             if (isUserAllowed(principal, existingItem)){
-                existingItem.setCompanyAddresses(item.getCompanyAddresses());
                 existingItem.setCompanyContractCompanies1(item.getCompanyContractCompanies1());
                 existingItem.setCompanyContractCompanies2(item.getCompanyContractCompanies2());
                 existingItem.setName(item.getName());

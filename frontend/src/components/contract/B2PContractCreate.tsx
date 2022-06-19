@@ -1,9 +1,11 @@
 import { Button, TextField } from "@mui/material"
+import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import React, { useState } from "react"
 import { useRecordContext } from "react-admin"
 import { Form } from "react-bootstrap"
 import SpringBootRequest from "../../services/SpringBootRequest"
-import { B2BContract, B2PContract } from "../../utils/definitions"
+import { B2BContract, B2PContract, ContractDetails } from "../../utils/definitions"
 import { switchDisplay } from "../../utils/switchDisplay"
 
 export const B2PContractCreate = ( props: {cui:string} ) =>{
@@ -15,6 +17,7 @@ export const B2PContractCreate = ( props: {cui:string} ) =>{
     const [wireFrequency, setWireFrequency] = useState<number>(0)
     const [amount, setAmount] = useState<number>(0)
     const [daysBeforeCancel, setDaysBeforeCancel] = useState<number>(0)
+    const [startDate, setStartDate] = useState<Date|null>(null)
 
     const handleChangeContractCode = (e:React.ChangeEvent<HTMLInputElement>) => {
         setContractCode(e.currentTarget.value)
@@ -39,13 +42,26 @@ export const B2PContractCreate = ( props: {cui:string} ) =>{
     }
 
     const saveData = () => {
+        const contractDetails:ContractDetails = {
+            wireFrequency : wireFrequency,
+            active : false,
+            amount : amount,
+            lastWire : null,
+            startDate : startDate,
+            daysBeforeCancel : daysBeforeCancel,
+            endDate : null,
+            wireToAddress : '',
+            id : ''
+        }
         const payload:B2PContract ={
             accepted : false,
             companyId : props.cui,
             appUserId : appUserId,
             terms : terms,
             id : '',
+            contractDetails: contractDetails,
             contractCode : contractCode,
+            contractId : '',
             description : description
         }
         SpringBootRequest(`companyContractPerson/`, "POST", payload).then(response=>{
@@ -54,35 +70,47 @@ export const B2PContractCreate = ( props: {cui:string} ) =>{
         })
        setDivDisplay('none')
     }
+    const handleChangeStartDate = (newValue: Date | null) => {
+        setStartDate(newValue);
+    };
 
     return(
         <div style={{marginTop:25}}>
             <Button variant="contained" onClick={()=>{ setDivDisplay(switchDisplay(divDisplay)) }}>Create B2P contract</Button>
             <div style ={{display:divDisplay}}>
                 <Form onSubmit={saveData}>
-                    <TextField onChange={handleChangeContractCode} id="outlined-basic" label="Contract Code" variant='outlined' />
-                    <TextField disabled id="outlined-basic" label="CUI" variant='outlined' defaultValue={props.cui}/>
-                    <TextField onChange={handleChangeAppUserId} id="outlined-basic" label="Username" variant='outlined' />
-                    <TextField onChange={handleChangeTerms} id="outlined-basic" label="Terms" variant='outlined' /><br/>
+                    <TextField required onChange={handleChangeContractCode} id="outlined-basic" label="Contract Code" variant='outlined' />
+                    <TextField required disabled id="outlined-basic" label="CUI" variant='outlined' defaultValue={props.cui}/>
+                    <TextField required onChange={handleChangeAppUserId} id="outlined-basic" label="Username" variant='outlined' />
+                    <TextField required onChange={handleChangeTerms} id="outlined-basic" label="Terms" variant='outlined' /><br/>
                     <TextField onChange={handleChangeDescription} id="outlined-basic" label="Description" variant='outlined' />
-                    <TextField onChange={handleChangeAmount} id="outlined-basic" label="Amount" variant='outlined'
+                    <TextField required onChange={handleChangeAmount} id="outlined-basic" label="Amount" variant='outlined'
                     onKeyDown={(event) => {
-                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key)) {
+                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key) && !/Tab/.test(event.key)) {
                         event.preventDefault();
                         }
                     }} />
-                    <TextField onChange={handleChangeDaysBeforeCancel} id="outlined-basic" label="Days before cancel" variant='outlined'
+                    <TextField required onChange={handleChangeDaysBeforeCancel} id="outlined-basic" label="Days before cancel" variant='outlined'
                     onKeyDown={(event) => {
-                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key)) {
+                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key) && !/Tab/.test(event.key)) {
                         event.preventDefault();
                         }
                     }} />
-                    <TextField onChange={handleChangeWireFrequency} id="outlined-basic" label="Wire frequency" variant='outlined'
+                    <TextField required onChange={handleChangeWireFrequency} id="outlined-basic" label="Wire frequency" variant='outlined'
                     onKeyDown={(event) => {
-                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key)) {
+                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key) && !/Tab/.test(event.key)) {
                         event.preventDefault();
                         }
                     }} /><br/>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DesktopDatePicker
+                    label="Start Date"
+                    inputFormat="dd//MM//yyyy"
+                    value={startDate}
+                    onChange={handleChangeStartDate }
+                    renderInput={(params:any) => <TextField required {...params} />}
+                    />
+                    </LocalizationProvider><br></br>
                     <Button type="submit" variant="contained" style={{marginTop:10}}>Save changes</Button>
                 </Form>
             </div>

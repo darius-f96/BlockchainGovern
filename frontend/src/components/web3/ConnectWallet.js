@@ -1,24 +1,13 @@
-import Web3 from "web3"
+import { metamask, web3 } from "../../utils/provider"
 
-let selectedAccount
-
-export const ConnectWallet = () => {
-    let provider = window.ethereum
-
-    if (typeof provider !== 'undefined'){
-
-        provider.request({
-                method: 'eth_requestAccounts'
-            }).then( (accounts)=>{
-                selectedAccount = accounts[0]
-                console.log(`Selected account is ${selectedAccount}`)
-            }).catch ((error)=>{
-                console.log(error)
-            })
-        provider.on('accountsChanged', (accounts)=>{
-            selectedAccount = accounts[0]
-            console.log(`Newly selected account is ${selectedAccount}`)})
+export const ConnectWallet = async () => {
+    if (!web3 ){
+        await web3.eth.enable()
     }
-
-    return new Web3(provider)
+    const accounts = await web3.eth.requestAccounts()
+    if (accounts)
+        return accounts[0].toLowerCase()
+    else
+        return ""
+        
 }

@@ -56,8 +56,9 @@ public class CompanyContractPerson implements Serializable {
 	@ManyToOne
 	private Company company;
 
-	@OneToMany(mappedBy = "contractDetailsId")
-	private List<ContractDetails> contractDetails;
+	@OneToOne
+    @JoinColumn(name = "contract_details_id", insertable = false, updatable = false)
+	private ContractDetails contractDetails;
 
 	public CompanyContractPerson() {
 	}
@@ -133,24 +134,11 @@ public class CompanyContractPerson implements Serializable {
 	public void setContractCode(String contractCode) {
 		this.contractCode = contractCode;
 	}
-	public List<ContractDetails> getContractDetails(){
+	public ContractDetails getContractDetails(){
 		return this.contractDetails;
 	}
-	public void setContractDetails (List<ContractDetails> contractDetails){
+	public void setContractDetails (ContractDetails contractDetails){
 		this.contractDetails = contractDetails;
-	}
-	public ContractDetails addUserRole(ContractDetails cDetails) {
-		getContractDetails().add(cDetails);
-		cDetails.setCompanyContractPerson(this);
-
-		return cDetails;
-	}
-
-	public ContractDetails removeUserRole(ContractDetails cDetails) {
-		getContractDetails().remove(cDetails);
-		cDetails.setCompanyContractPerson(null);
-
-		return cDetails;
 	}
 	public String getContractDetailsId(){
 		return this.contractDetailsId;

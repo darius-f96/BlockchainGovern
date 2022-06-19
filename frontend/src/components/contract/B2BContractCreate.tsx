@@ -1,4 +1,6 @@
 import { Button, TextField } from "@mui/material"
+import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import React, { useState } from "react"
 import { BooleanField, NumberField, NumberInput } from "react-admin"
 import { Form } from "react-bootstrap"
@@ -15,6 +17,7 @@ export const B2BContractCreate = (props: {cui:string} ) =>{
     const [wireFrequency, setWireFrequency] = useState<number>(0)
     const [amount, setAmount] = useState<number>(0)
     const [daysBeforeCancel, setDaysBeforeCancel] = useState<number>(0)
+    const [startDate, setStartDate] = useState<Date|null>(null)
 
     const handleChangeContractCode = (e:React.ChangeEvent<HTMLInputElement>) => {
         setContractCode(e.currentTarget.value)
@@ -37,6 +40,9 @@ export const B2BContractCreate = (props: {cui:string} ) =>{
     const handleChangeDaysBeforeCancel = (e:React.ChangeEvent<HTMLInputElement>) => {
         setDaysBeforeCancel(parseInt(e.currentTarget.value))
     }
+    const handleChangeStartDate = (newValue: Date | null) => {
+        setStartDate(newValue);
+    };
 
     const saveData = () => {
         const contractDetails:ContractDetails = {
@@ -44,8 +50,10 @@ export const B2BContractCreate = (props: {cui:string} ) =>{
             active : false,
             amount : amount,
             lastWire : null,
-            startDate : null,
+            startDate : startDate,
             daysBeforeCancel : daysBeforeCancel,
+            endDate : null,
+            wireToAddress : '',
             id : ''
         }
         const payload:B2BContract ={
@@ -56,6 +64,7 @@ export const B2BContractCreate = (props: {cui:string} ) =>{
             id : '',
             contractCode : contractCode,
             description : description,
+            contractId : '',
             contractDetails: contractDetails
         }
         SpringBootRequest(`companyContractCompany/`, "POST", payload).then(response=>{
@@ -70,29 +79,38 @@ export const B2BContractCreate = (props: {cui:string} ) =>{
             <Button variant="contained" onClick={()=>{ setDivDisplay(switchDisplay(divDisplay)) }}>Create B2B contract</Button>
             <div style ={{display:divDisplay}}>
                 <Form onSubmit={saveData}>
-                    <TextField onChange={handleChangeContractCode} id="outlined-basic" label="Contract Code" variant='outlined' />
+                    <TextField required onChange={handleChangeContractCode} id="outlined-basic" label="Contract Code" variant='outlined' />
                     <TextField disabled id="outlined-basic" label="CUI" variant='outlined' defaultValue={props.cui}/>
-                    <TextField onChange={handleChangeCompanyid2} id="outlined-basic" label="Contractor CUI" variant='outlined' />
-                    <TextField onChange={handleChangeTerms} id="outlined-basic" label="Terms" variant='outlined' /><br/>
+                    <TextField required onChange={handleChangeCompanyid2} id="outlined-basic" label="Contractor CUI" variant='outlined' />
+                    <TextField required onChange={handleChangeTerms} id="outlined-basic" label="Terms" variant='outlined' /><br/>
                     <TextField onChange={handleChangeDescription} id="outlined-basic" label="Description" variant='outlined' />
-                    <TextField onChange={handleChangeAmount} id="outlined-basic" label="Amount" variant='outlined'
+                    <TextField required onChange={handleChangeAmount} id="outlined-basic" label="Amount" variant='outlined'
                     onKeyDown={(event) => {
-                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key)) {
+                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key) && !/Tab/.test(event.key)) {
                         event.preventDefault();
                         }
                     }} />
-                    <TextField onChange={handleChangeDaysBeforeCancel} id="outlined-basic" label="Days before cancel" variant='outlined'
+                    <TextField required onChange={handleChangeDaysBeforeCancel} id="outlined-basic" label="Days before cancel" variant='outlined'
                     onKeyDown={(event) => {
-                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key)) {
+                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key) && !/Tab/.test(event.key)) {
                         event.preventDefault();
                         }
                     }} />
-                    <TextField onChange={handleChangeWireFrequency} id="outlined-basic" label="Wire frequency" variant='outlined'
+                    <TextField required onChange={handleChangeWireFrequency} id="outlined-basic" label="Wire frequency" variant='outlined'
                     onKeyDown={(event) => {
-                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key)) {
+                        if (!/[0-9]/.test(event.key) && !/Backspace/.test(event.key) && !/Tab/.test(event.key)) {
                         event.preventDefault();
                         }
                     }} />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DesktopDatePicker
+                    label="Start Date"
+                    inputFormat="dd//MM//yyyy"
+                    value={startDate}
+                    onChange={handleChangeStartDate }
+                    renderInput={(params:any) => <TextField required {...params} />}
+                    />
+                 </LocalizationProvider><br></br>
                     <br></br><Button type="submit" variant="contained" style={{marginTop:10}}>Save changes</Button>
                 </Form>
             </div>
