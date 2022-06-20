@@ -39,12 +39,26 @@ contract WorkContract  is Ownable{
         wireFrequency = _wireFrequency;
     }
 
+    event Received(address, uint);
+    
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+
+    error DaysBeforeCancelNotPassed();
+    error OnlyOwnerCanCall();
+    error ContractNotActiveOrNotStarted();
+
+    function getBalance() external view returns (uint256) {
+       return address(this).balance;
+     }
+
     function setInactive() public {
         if (block.timestamp > endDate){
             active = false;
         }
         else {
-            revert("Number of necessary days until you can end the contract was not reached.");
+            revert DaysBeforeCancelNotPassed();
         }
         
     }
@@ -53,7 +67,7 @@ contract WorkContract  is Ownable{
          if (msg.sender == owner() || msg.sender == employee)
             endDate = block.timestamp + (daysBeforeCancel * 60 * 60 * 24);
         else
-            revert("Access denied.");
+            revert OnlyOwnerCanCall();
         
     }
 
@@ -65,7 +79,7 @@ contract WorkContract  is Ownable{
         if (msg.sender == owner() || msg.sender == employee)
             active = true;
         else
-            revert("Access denied.");
+            revert OnlyOwnerCanCall();
     }
 
     function setWage(uint256 _wage) public onlyOwner{
@@ -78,20 +92,26 @@ contract WorkContract  is Ownable{
         healthTaxModifier = _taxModifier;
     }
 
-    function wireWage() public onlyOwner returns(bool success) {
-        if (startDate < block.timestamp && active && (lastWire + wireFrequency) < block.timestamp){
-            employee.transfer(wage - (wage*gvtTaxModifier/10000) - (wage*healthTaxModifier/10000));
-            gvt.transfer(wage*gvtTaxModifier/10000);
-            health.transfer(wage*healthTaxModifier/10000);
-            setLastWire(block.timestamp);
-            success = true;
-        }else {
-            revert("Contract is no longer active");
+    function wireWage() public payable onlyOwner returns(bool success) {
+        if (!(startDate < block.timestamp && active && (lastWire + wireFrequency) < block.timestamp)){
+            revert ContractNotActiveOrNotStarted();
         }
-        success = false;
+
+        require(msg.value > wage, "You need to provide more ethereum");
+
+        payable(address(this)).transfer(msg.value);
+        employee.transfer(wage - (wage*gvtTaxModifier/10000) - (wage*healthTaxModifier/10000));
+        gvt.transfer(wage*gvtTaxModifier/10000);
+        health.transfer(wage*healthTaxModifier/10000);
+        setLastWire(block.timestamp);
+        success = true;
     }
 
     function changeOwner (address newOwner) public onlyOwner {
         _transferOwnership(newOwner);
+    }
+
+    function withdraw (address _to) public onlyOwner {
+        payable(_to).transfer(address(this).balance);
     }
 }

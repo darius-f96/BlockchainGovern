@@ -2,17 +2,16 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const provider = ethers.getDefaultProvider();
 
-describe("BusinessContract", function () {
+describe("WorkContract", function () {
   it("Should make the transfer", async function () {
-    const BusinessContractHandler = await ethers.getContractFactory("BusinessContract");
+    const BusinessContractHandler = await ethers.getContractFactory("WorkContract");
     const testBusinessContract = await BusinessContractHandler.deploy(
       "0xA5C6Df5652fe691a66ED141B35Fc7D9036EffCfE",
-      1000000,
+      1,
       true,
       1,
       1,
-      1,
-      true
+      1
     );
     await testBusinessContract.deployed();
 
