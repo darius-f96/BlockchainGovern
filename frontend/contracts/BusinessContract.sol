@@ -50,6 +50,7 @@ contract BusinessContract  is Ownable{
     error DaysBeforeCancelNotPassed();
     error OnlyOwnerCanCall();
     error ContractNotActiveOrNotStarted();
+    error OnlyOwnerAndContractorCanCall();
 
     function getBalance() external view returns (uint256) {
        return address(this).balance;
@@ -77,12 +78,16 @@ contract BusinessContract  is Ownable{
          if (msg.sender == owner() || msg.sender == contractor)
             endDate = block.timestamp + (daysBeforeCancel * 60 * 60 * 24);
         else
-            revert OnlyOwnerCanCall();
+            revert OnlyOwnerAndContractorCanCall();
         
     }
 
     function setLastWire(uint _lastWire) public onlyOwner{
         lastWire = _lastWire;
+    }
+
+    function getLastWire() public returns (uint){
+        return lastWire;
     }
 
     function setActive() public {
@@ -100,14 +105,14 @@ contract BusinessContract  is Ownable{
     }
 
     function wireWage() public payable onlyOwner returns(bool success) { 
-
-        if (!(startDate < block.timestamp && active && (lastWire + wireFrequency) < block.timestamp)){
+            console.log(endDate);
+        if (!(startDate < block.timestamp && active && (lastWire + (wireFrequency * 60 * 60 * 24)) < block.timestamp && endDate < block.timestamp)){
             revert ContractNotActiveOrNotStarted();
         }
-        require(msg.value > wage, "You need to provide more ethereum");
+        require(msg.value >= wage, "You need to provide more ethereum");
         payable(address(this)).transfer(msg.value);
         contractor.transfer(wage - (wage*gvtTaxModifier/10000));
-
+        console.log(daysBeforeCancel*60*60*24, block.timestamp);
         gvt.transfer(wage*gvtTaxModifier/10000);
         setLastWire(block.timestamp);
         success = true;

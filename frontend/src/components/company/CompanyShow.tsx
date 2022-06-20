@@ -12,7 +12,7 @@ import DeployContractModal from '../modal/DeployContractModal';
 import AcceptCompanyContractModal from '../modal/AcceptCompanyContractModal';
 import AcceptPersonContractModal from '../modal/AcceptPersonContractModal';
 import DeclineContractModal from '../modal/DeclineContractModal';
-import EndContractModal from '../modal/EndCompanyContractModal';
+import EndContractModal from '../modal/EndContractModal';
 import { HandlePayments } from '../web3/HandlePayments';
 export const CompanyShow = () => {
     const data = useShowController()
@@ -71,7 +71,8 @@ export const CompanyShow = () => {
                             <FunctionField render={(record:any) => 
                                 (userCanEndCompanyContract({companyId:data.record.cui, contract:record}) || userAllowed) &&
                                 record.accepted && 
-                                <EndContractModal contract={record}/> } />
+                                !record.contractDetails.endDate &&
+                                <EndContractModal companyData={data.record} contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 (userCanDeployCompanyContract({companyId:data.record.cui, contract:record}) && userAllowed) &&
                                 record.accepted && 
@@ -106,7 +107,8 @@ export const CompanyShow = () => {
                             <FunctionField render={(record:any) => 
                                 (userCanEndContract({contract:record}) || userAllowed) && 
                                 record.accepted && 
-                                <EndContractModal contract={record}/> } />
+                                !record.contractDetails.endDate &&
+                                <EndContractModal companyData={data.record} contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 (userCanDeployContract({cui:data.record.cui, contract:record}) && userAllowed) &&
                                 record.accepted && 

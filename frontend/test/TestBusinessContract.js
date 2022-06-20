@@ -7,7 +7,7 @@ describe("BusinessContract", function () {
     const BusinessContractHandler = await ethers.getContractFactory("BusinessContract");
     const testBusinessContract = await BusinessContractHandler.deploy(
       "0xA5C6Df5652fe691a66ED141B35Fc7D9036EffCfE",
-      1000000,
+      1,
       true,
       1,
       1,
@@ -19,10 +19,10 @@ describe("BusinessContract", function () {
     //expect(await testBusinessContract.wire()).to.equal();
 
     const setWireTx = await testBusinessContract.wireWage({
-        value: 2000000, // Sends exactly 1.0 ether
+        value: 1, // Sends exactly 1.0 ether
 
     }).then(async function(){
-      var balance = await provider.getBalance("0xA5C6Df5652fe691a66ED141B35Fc7D9036EffCfE")
+      var balance = provider.getBalance("0xA5C6Df5652fe691a66ED141B35Fc7D9036EffCfE")
       console.log(balance)
     });
 

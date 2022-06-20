@@ -7,7 +7,7 @@ describe("WorkContract", function () {
     const BusinessContractHandler = await ethers.getContractFactory("WorkContract");
     const testBusinessContract = await BusinessContractHandler.deploy(
       "0xA5C6Df5652fe691a66ED141B35Fc7D9036EffCfE",
-      1,
+      (1*10e17).toString(),
       true,
       1,
       1,
@@ -16,13 +16,14 @@ describe("WorkContract", function () {
     await testBusinessContract.deployed();
 
     //expect(await testBusinessContract.wire()).to.equal();
-
+    const amt  = 3 * 10e17
     const setWireTx = await testBusinessContract.wireWage({
-        value: 2000000, // Sends exactly 1.0 ether
+        value: amt.toString(), // Sends exactly 1.0 ether
 
     }).then(async function(){
-      var balance = await provider.getBalance("0xA5C6Df5652fe691a66ED141B35Fc7D9036EffCfE")
-      console.log(balance)
+      var balance = await testBusinessContract.getBalance()
+      console.log(ethers.utils.formatEther(balance))
+
     });
 
     // wait until the transaction is mined

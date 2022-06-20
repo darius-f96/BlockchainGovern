@@ -3,7 +3,7 @@ import WorkContractArtifact from '../../artifacts/contracts/WorkContract.sol/Wor
 import PayProducts from '../../artifacts/contracts/PayProducts.sol/PayProducts.json'
 import BusinessContract from '../../artifacts/contracts/BusinessContract.sol/BusinessContract.json'
 import React, { useEffect, useState } from 'react';
-import { provider } from '../../utils/provider';
+import { provider, web3 } from '../../utils/provider';
 import toast from 'react-hot-toast';
 import { B2BContract, B2PContract } from '../../utils/definitions';
 import { dateToSeconds } from '../../utils/dateToSeconds';
@@ -11,6 +11,7 @@ import { instanceofBusiness2BusinessContract, instanceofBusiness2PersonContract 
 import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, SelectChangeEvent } from '@mui/material';
 import { ConnectWallet } from './ConnectWallet';
 import { Form } from 'react-admin';
+import SpringBootRequest from '../../services/SpringBootRequest';
 
 export const HandlePayments = (props : {companyData:any}) =>{
   const [open, setOpen] = React.useState(false);
@@ -47,26 +48,36 @@ export const HandlePayments = (props : {companyData:any}) =>{
     }
 
     props.companyData.companyContractPersons.map( async(contractPerson:B2PContract) =>{
-        if (contractPerson.contractId && contractPerson.contractDetails.active){
+        if (contractPerson.contractId && contractPerson.contractDetails.active && contractPerson.companyId === props.companyData.cui){
           try {
             contractHandler = new ethers.Contract(contractPerson.contractId, WorkContractArtifact.abi, signer)
-            const executed = await contractHandler.wireWage()
+            const executed = await contractHandler.wireWage({value: ((contractPerson.contractDetails.amount)*10e17).toString()})
             await executed.wait();
             if (!executed)
               toast.error(`Something went wrong for contract ${contractPerson.contractId}...Payment reverted`)
+            else {
+              contractPerson.contractDetails.lastWire = new Date()
+              SpringBootRequest(`companyContractPerson/${contractPerson.id}`, "PUT", contractPerson)
+            }
           } catch (error) {
             console.log("got error during payment process for person contracts: ", error)
           }   
         }
     })
     props.companyData.companyContractCompanies1.map( async(contractCompany:B2BContract) =>{
-      if (contractCompany.contractId && contractCompany.contractDetails.active){
+      if (contractCompany.contractId && contractCompany.contractDetails.active && contractCompany.companyId1 === props.companyData.cui){
         try {
-          contractHandler = new ethers.Contract(contractCompany.contractId, BusinessContract.abi, signer)  
-          const executed = await contractHandler.wireWage()
-          await executed.wait();
+          contractHandler = new ethers.Contract(contractCompany.contractId, BusinessContract.abi, signer) 
+          
+           const executed = await contractHandler.wireWage({value: ((contractCompany.contractDetails.amount)*10e17).toString()})
+           await executed.wait();
+          console.log("get balance returned: ", executed)
           if (!executed)
             toast.error(`Something went wrong for contract ${contractCompany.contractId}...Payment reverted`)
+          else {
+            contractCompany.contractDetails.lastWire = new Date()
+            SpringBootRequest(`companyContractCompany/${contractCompany.id}`, "PUT", contractCompany)
+          }
         } catch (error) {
           console.log("got error during payment process for company contracts: ", error)
         }   
@@ -106,7 +117,7 @@ export const HandlePayments = (props : {companyData:any}) =>{
                     }
                     </Select>
                     </FormControl><br/>
-                    <Button disabled={wallet===''} type="submit" color='success' variant="contained" style={{marginTop:10}}>Deploy</Button>
+                    <Button disabled={wallet===''} type="submit" color='success' variant="contained" style={{marginTop:10}}>Pay</Button>
                     <Button type="submit" color='error' variant="contained" style={{marginTop:10, marginLeft:10}}  onClick={handleClose}>Cancel</Button>
 
                 </Form>

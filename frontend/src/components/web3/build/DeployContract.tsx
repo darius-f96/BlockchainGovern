@@ -51,7 +51,7 @@ export const DeployContract = (props : {fromAccount:string, contractToDeploy:B2B
       if (instanceofBusiness2PersonContract(props.contractToDeploy)){
         deployedContract = await ContractToDeploy.deploy(
             props.contractToDeploy.contractDetails?.wireToAddress,
-            props.contractToDeploy.contractDetails?.amount,
+            (props.contractToDeploy.contractDetails?.amount * 10e17).toString(),
             true,
             props.contractToDeploy.contractDetails?.daysBeforeCancel,
             props.contractToDeploy.contractDetails?.wireFrequency,
@@ -61,7 +61,7 @@ export const DeployContract = (props : {fromAccount:string, contractToDeploy:B2B
       else if (instanceofBusiness2BusinessContract(props.contractToDeploy)){
         deployedContract = await ContractToDeploy.deploy(
           props.contractToDeploy.contractDetails?.wireToAddress,
-          props.contractToDeploy.contractDetails?.amount,
+          (props.contractToDeploy.contractDetails?.amount * 10e17).toString(),
           true,
           props.contractToDeploy.contractDetails?.daysBeforeCancel,
           props.contractToDeploy.contractDetails?.wireFrequency,
