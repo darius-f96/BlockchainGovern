@@ -61,7 +61,7 @@ contract BusinessContract  is Ownable{
 
     function setEndDate() public {
          if (msg.sender == owner() || msg.sender == contractor)
-            endDate = block.timestamp + daysBeforeCancel;
+            endDate = block.timestamp + (daysBeforeCancel * 60 * 60 * 24);
         else
             revert("Access denied.");
         
@@ -87,13 +87,16 @@ contract BusinessContract  is Ownable{
 
     function wireWage() public onlyOwner returns(bool success) {
         if (startDate < block.timestamp && active && (lastWire + wireFrequency) < block.timestamp){
+            console.log("test", wage);
             contractor.transfer(wage - (wage*gvtTaxModifier/10000));
+            console.log("after transfer");
             gvt.transfer(wage*gvtTaxModifier/10000);
             setLastWire(block.timestamp);
             success = true;
         }else {
             revert("Contract is no longer active");
         }
+        success = false;
     }
 
     function changeOwner (address newOwner) public onlyOwner {

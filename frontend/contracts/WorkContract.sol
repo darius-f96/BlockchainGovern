@@ -51,7 +51,7 @@ contract WorkContract  is Ownable{
 
     function setEndDate() public {
          if (msg.sender == owner() || msg.sender == employee)
-            endDate = block.timestamp + daysBeforeCancel;
+            endDate = block.timestamp + (daysBeforeCancel * 60 * 60 * 24);
         else
             revert("Access denied.");
         
@@ -88,6 +88,7 @@ contract WorkContract  is Ownable{
         }else {
             revert("Contract is no longer active");
         }
+        success = false;
     }
 
     function changeOwner (address newOwner) public onlyOwner {

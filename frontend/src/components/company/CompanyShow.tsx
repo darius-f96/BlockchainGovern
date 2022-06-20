@@ -11,6 +11,9 @@ import toast from 'react-hot-toast';
 import DeployContractModal from '../modal/DeployContractModal';
 import AcceptCompanyContractModal from '../modal/AcceptCompanyContractModal';
 import AcceptPersonContractModal from '../modal/AcceptPersonContractModal';
+import DeclineContractModal from '../modal/DeclineContractModal';
+import EndContractModal from '../modal/EndCompanyContractModal';
+import { HandlePayments } from '../web3/HandlePayments';
 export const CompanyShow = () => {
     const data = useShowController()
     const userAllowed:Boolean = userModifyCompanyAllowed({userRoles:data.record.userRoles})
@@ -20,6 +23,7 @@ export const CompanyShow = () => {
 
     const CompanyShowTopToolbar = () =>(
         <TopToolbar>
+            {userAllowed && <HandlePayments companyData={data.record}/>}
             {userAllowed && <EditButton />}
         </TopToolbar>
     )
@@ -28,33 +32,6 @@ export const CompanyShow = () => {
             setBalanceArray(balanceArray.set(props.record.walletId, web3.utils.fromWei(response.toString())))
         })
         return balance
-    }
-
-    const declineContract = (props : {contract:any}) => {
-        if (!props.contract.companyId2){
-            SpringBootRequest(`companyContractPerson/${props.contract.id}`, "DELETE", props.contract).then(response=>{
-                console.log(response)
-            })
-        }
-        else {
-            SpringBootRequest(`companyContractCompany/${props.contract.id}`, "DELETE", props.contract).then(response=>{
-                console.log(response)
-            })
-        }
-    }
-
-    const endContract = (props : {contract:any}) => {
-        // props.contract.contractDetails
-        if (!props.contract.companyId2){
-            SpringBootRequest(`companyContractPerson/${props.contract.id}`, "PUT", props.contract).then(response=>{
-                console.log(response)
-            })
-        }
-        else {
-            SpringBootRequest(`companyContractCompany/${props.contract.id}`, "PUT", props.contract).then(response=>{
-                console.log(response)
-            })
-        }
     }
 
     return (
@@ -90,11 +67,11 @@ export const CompanyShow = () => {
                             <FunctionField render={(record:any) => 
                                 userAllowed && 
                                 userCanAcceptCompanyContract({companyId:data.record.cui, contract:record}) && 
-                                <Button variant="contained" color='error' onClick={()=> declineContract({contract:record})}>Decline</Button> } />
+                                <DeclineContractModal contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 (userCanEndCompanyContract({companyId:data.record.cui, contract:record}) || userAllowed) &&
                                 record.accepted && 
-                                <Button variant="contained" color='error'>End</Button> } />
+                                <EndContractModal contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 (userCanDeployCompanyContract({companyId:data.record.cui, contract:record}) && userAllowed) &&
                                 record.accepted && 
@@ -125,11 +102,11 @@ export const CompanyShow = () => {
                                 <AcceptPersonContractModal data={data.record} contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 userCanAcceptContract({contract:record}) && 
-                                <Button variant="contained" color='error' onClick={()=> declineContract({contract:record})}>Decline</Button> } />
+                                <DeclineContractModal contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 (userCanEndContract({contract:record}) || userAllowed) && 
                                 record.accepted && 
-                                <Button variant="contained" color='error'>End</Button> } />
+                                <EndContractModal contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 (userCanDeployContract({cui:data.record.cui, contract:record}) && userAllowed) &&
                                 record.accepted && 
