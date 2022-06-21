@@ -17,16 +17,19 @@ import { CompanyShow } from './components/company/CompanyShow';
 import SpringBootRequest from './services/SpringBootRequest';
 import { metamask, provider, web3 } from './utils/provider';
 import toast, { Toaster } from 'react-hot-toast';
+import LoginPage from './components/LoginPage';
+
 
 function App() {
   const dataProvider = SpringBootDataProvider("http://localhost:8080")
-  SpringBootRequest('roleType', 'GET', undefined).then(response => Object.values(response).map((obj:any) => localStorage.setItem(obj.roleCode, obj.id)))
+  
   if (!metamask){
     toast.error("You must to install Metamask in order to use this app!")
   }
+
   return (
     <ErrorBoundary>
-      <div id="main" className="App">
+      <div id="main" className="App" >
         <Toaster
             position="top-center"
             reverseOrder={true}
@@ -34,6 +37,7 @@ function App() {
           <Admin  dataProvider={dataProvider} 
                   authProvider={authProvider}
                   layout={MyAppLayout}
+                  loginPage={LoginPage}
           >
             <Resource name='company' list={CompanyList} create={CompanyCreate} edit={CompanyEdit} show={CompanyShow}></Resource>
             <CustomRoutes>
@@ -43,7 +47,7 @@ function App() {
             </CustomRoutes>
           </Admin>
       
-      </div>
+        </div>
     </ErrorBoundary>
   );
 }

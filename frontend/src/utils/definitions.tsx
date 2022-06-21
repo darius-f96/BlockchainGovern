@@ -19,10 +19,14 @@ export interface PersonEntity {
 }
 export interface CompanyEntity {
     id : string;
-    Name: string;
-    CUI: string;
-    Description: string;
+    name: string;
+    cui: string;
+    description: string;
     regIdentifier: string;
+    companyWallets : Array<CompanyWallet>;
+    companyContractCompanies1 : Array<B2BContract>;
+    companyContractPersons : Array<B2PContract>;
+    userRoles : Array<UserRole>
 }
 
 export interface B2BContract {

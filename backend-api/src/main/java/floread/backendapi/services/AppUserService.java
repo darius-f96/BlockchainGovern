@@ -28,7 +28,7 @@ public class AppUserService implements UserDetailsService{
         return AppUserMapper.userToPrincipal(user);
     }
 
-    public String signUpUser(AppUser appUser){
+    public Boolean signUpUser(AppUser appUser){
         boolean userExists = appUserDao.findByEmail(appUser.getEmail()).isPresent();
 
         if (userExists){
@@ -44,7 +44,7 @@ public class AppUserService implements UserDetailsService{
 
         appUserDao.save(appUser);
 
-        return "User registered";
+        return true;
     }
     
 }

@@ -1,10 +1,10 @@
 import { Button } from '@mui/material';
 import { ArrayField, BooleanField, Datagrid, EditButton, FunctionField, NumberField, NumberInput, Show, SimpleShowLayout, TextField, TopToolbar, useRecordContext, useShowController} from 'react-admin';
 import { userCanAcceptCompanyContract, userCanAcceptContract, userCanDeployCompanyContract, userCanDeployContract, userCanEndCompanyContract, userCanEndContract, userModifyCompanyAllowed } from '../../utils/isUserAllowed';
-import {CompanyWallet, ContractDetails} from '../../utils/definitions'
+import {CompanyEntity, CompanyWallet, ContractDetails} from '../../utils/definitions'
 import { BigNumber, Contract } from 'ethers';
 import { provider, web3 } from '../../utils/provider';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SpringBootRequest from '../../services/SpringBootRequest';
 import { DeployContract } from '../web3/build/DeployContract';
 import toast from 'react-hot-toast';
@@ -15,15 +15,31 @@ import DeclineContractModal from '../modal/DeclineContractModal';
 import EndContractModal from '../modal/EndContractModal';
 import { HandlePayments } from '../web3/HandlePayments';
 export const CompanyShow = () => {
-    const data = useShowController()
-    const userAllowed:Boolean = userModifyCompanyAllowed({userRoles:data.record.userRoles})
     const [balanceArray, setBalanceArray] = useState<Map<string, string>>(new Map())
+    const [data, setData] = useState<CompanyEntity>()
+    const [userAllowed, setUserAllowed] = useState<Boolean>(false)
+ 
+    useEffect(()=>{
+        toast.promise(
+            getData(),
+             {
+               loading: 'Loading...',
+               success: <b>Company data loaded!</b>,
+               error: <b>Could not load company data.</b>,
+             }
+           )
+    }, [])
 
-    console.log(data)
+    const getData = async () => {
+        const companyId = window.location.href.split('/')[5]
+        const response = await SpringBootRequest(`company/${companyId}`, 'GET', undefined)
+        setData(response)        
+        setUserAllowed(userModifyCompanyAllowed({userRoles:response.userRoles}))
+    }
 
     const CompanyShowTopToolbar = () =>(
         <TopToolbar>
-            {userAllowed && <HandlePayments companyData={data.record}/>}
+            {userAllowed && <HandlePayments companyData={data}/>}
             {userAllowed && <EditButton />}
         </TopToolbar>
     )
@@ -33,7 +49,9 @@ export const CompanyShow = () => {
         })
         return balance
     }
-
+    if (!data){
+        return (<div></div>)
+    }
     return (
         <div>
             <Show actions={<CompanyShowTopToolbar/>}>
@@ -43,6 +61,7 @@ export const CompanyShow = () => {
                     <TextField source="name" />
                     <TextField source="regIdentifier" />
                     <TextField label= "Company Contract Companies"/>
+                    
                     <ArrayField label = "" source="companyContractCompanies1">
                         <Datagrid
                         isRowSelectable={record => false}
@@ -62,22 +81,22 @@ export const CompanyShow = () => {
                             <TextField label="Wire to Address"  source="contractDetails.wireToAddress" />
                             <FunctionField render={(record:any) => 
                                 userAllowed && 
-                                userCanAcceptCompanyContract({companyId:data.record.cui, contract:record}) && 
-                                <AcceptCompanyContractModal data={data.record} contract={record}/> } />
+                                userCanAcceptCompanyContract({companyId:data.cui, contract:record}) && 
+                                <AcceptCompanyContractModal data={data} contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 userAllowed && 
-                                userCanAcceptCompanyContract({companyId:data.record.cui, contract:record}) && 
+                                userCanAcceptCompanyContract({companyId:data.cui, contract:record}) && 
                                 <DeclineContractModal contract={record}/> } />
                             <FunctionField render={(record:any) => 
-                                (userCanEndCompanyContract({companyId:data.record.cui, contract:record}) || userAllowed) &&
+                                (userCanEndCompanyContract({companyId:data.cui, contract:record}) || userAllowed) &&
                                 record.accepted && 
                                 !record.contractDetails.endDate &&
-                                <EndContractModal companyData={data.record} contract={record}/> } />
+                                <EndContractModal companyData={data} contract={record}/> } />
                             <FunctionField render={(record:any) => 
-                                (userCanDeployCompanyContract({companyId:data.record.cui, contract:record}) && userAllowed) &&
+                                (userCanDeployCompanyContract({companyId:data.cui, contract:record}) && userAllowed) &&
                                 record.accepted && 
                                 !record.contractId &&
-                                <DeployContractModal data={data.record} contract={record}/> } />
+                                <DeployContractModal data={data} contract={record}/> } />
                         </Datagrid>
                     </ArrayField>
                     <TextField label= "Company Contract Employees"/>
@@ -100,7 +119,7 @@ export const CompanyShow = () => {
                             <TextField label="Wire to Address"  source="contractDetails.wireToAddress" />
                             <FunctionField render={(record:any) => 
                                 userCanAcceptContract({contract:record}) && 
-                                <AcceptPersonContractModal data={data.record} contract={record}/> } />
+                                <AcceptPersonContractModal data={data} contract={record}/> } />
                             <FunctionField render={(record:any) => 
                                 userCanAcceptContract({contract:record}) && 
                                 <DeclineContractModal contract={record}/> } />
@@ -108,12 +127,12 @@ export const CompanyShow = () => {
                                 (userCanEndContract({contract:record}) || userAllowed) && 
                                 record.accepted && 
                                 !record.contractDetails.endDate &&
-                                <EndContractModal companyData={data.record} contract={record}/> } />
+                                <EndContractModal companyData={data} contract={record}/> } />
                             <FunctionField render={(record:any) => 
-                                (userCanDeployContract({cui:data.record.cui, contract:record}) && userAllowed) &&
+                                (userCanDeployContract({cui:data.cui, contract:record}) && userAllowed) &&
                                 record.accepted && 
                                 !record.contractId &&
-                                <DeployContractModal data={data.record} contract={record}/> } />
+                                <DeployContractModal data={data} contract={record}/> } />
                         </Datagrid>
                     </ArrayField>
                     <ArrayField label = "" source="companyWallets">

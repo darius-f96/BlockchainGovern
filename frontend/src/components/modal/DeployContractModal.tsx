@@ -42,20 +42,19 @@ export default function DeployContractModal(props: { data:any, contract:B2BContr
       DeployContract({fromAccount: wallet, contractToDeploy:props.contract}).then(response=>{
         if (response && response !== ''){
           toast.success("Contract was successfuly deployed and is now active!")
-          let payload = props.contract
-            payload.contractDetails.active = true
-            payload.contractId = response
+          props.contract.contractDetails.active = true
+          props.contract.contractId = response
           if (instanceofBusiness2PersonContract(props.contract)){
             
-            SpringBootRequest(`companyContractPerson/${props.contract.id}`, 'PUT', payload).then(response=>{
+            SpringBootRequest(`companyContractPerson/${props.contract.id}`, 'PUT', props.contract).then(response=>{
               if (response){
-                toast.success(`Address ${payload.contractId} added to contract information`)}
+                toast.success(`Address ${props.contract.contractId} added to contract information`)}
             })
           }
           else if (instanceofBusiness2BusinessContract(props.contract)){
-            SpringBootRequest(`companyContractCompany/${props.contract.id}`, 'PUT', payload).then(response=>{
+            SpringBootRequest(`companyContractCompany/${props.contract.id}`, 'PUT', props.contract).then(response=>{
               if (response){
-                toast.success(`Address ${payload.contractId} added to contract information`)}
+                toast.success(`Address ${props.contract.contractId} added to contract information`)}
             })
             
           }

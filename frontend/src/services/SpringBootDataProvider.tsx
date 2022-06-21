@@ -11,7 +11,7 @@ import {
   DELETE_MANY
 } from "react-admin";
 
-import {auth} from '../utils/auth'
+import {auth, getAuthToken} from '../utils/auth'
 
 interface Pagination {
   page:Number,
@@ -44,9 +44,9 @@ interface SimpleResponse{
 
  export default (apiUrl:String, httpClient = fetchUtils.fetchJson) => {
 
-  const convertDataRequestToHTTP = (type:String, resource:string, params:Params) => {
+  const convertDataRequestToHTTP = async (type:String, resource:string, params:Params) => {
 
-    const token = auth()
+    const token = await auth()
     let url = '';
     let options:Options = {method:'GET', body:null};
     if (!options.headers) {
@@ -162,7 +162,7 @@ interface SimpleResponse{
       }));
     }
 
-    const { url, options } = convertDataRequestToHTTP(type, resource, params);
+    const { url, options } =  await convertDataRequestToHTTP(type, resource, params);
     return await httpClient(url, options).then(response => {
       if (response.status !== 204){
         return convertHTTPResponse(response, type, resource, params)

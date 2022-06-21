@@ -1,7 +1,10 @@
 import toast from 'react-hot-toast';
-import { auth } from '../utils/auth';
+import { auth, getAuthToken } from '../utils/auth';
 
 const SpringBootRequest = async (path:string, method:string, body:object|undefined ) => {
+
+    const token = await auth()
+
     const request = new Request(`http://localhost:8080/${path}`, {
             method: method,
             body: method!=='GET'?JSON.stringify(body) :null,
@@ -9,7 +12,7 @@ const SpringBootRequest = async (path:string, method:string, body:object|undefin
                                     "Access-Control-Allow-Origin": "*",
                                     "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
                                     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
-                                    "Authorization" : "Bearer "+ auth() }),
+                                    "Authorization" : "Bearer "+ token }),
         })
         try {
         const response = await fetch(request)

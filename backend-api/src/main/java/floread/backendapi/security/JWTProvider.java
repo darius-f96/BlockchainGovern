@@ -22,11 +22,10 @@ import io.jsonwebtoken.security.Keys;
 public class JWTProvider {
 
     private final Key jwtSecret = Keys.hmacShaKeyFor("SDFCVsadfa51423534GFVS234SFAFAsfbvdSDFCVsadfa51423534GFVS234SFAFAsfbvdfsfsdrh23w32".getBytes());
-    private int jwtExpirationInMs = 3600000;
 
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        Date expiryDate = new Date(now.getTime() + 10 * 60 * 1000);
 
         return Jwts.builder()
             .setSubject(userDetails.getUsername())
@@ -35,6 +34,19 @@ public class JWTProvider {
             .signWith(jwtSecret, SignatureAlgorithm.HS512)
             .compact();
     }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + 4 * 60 * 60 * 1000);
+
+        return Jwts.builder()
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(new Date())
+            .setExpiration(expiryDate)
+            .signWith(jwtSecret, SignatureAlgorithm.HS512)
+            .compact();
+    }
+    
     public String getUserUsernameFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
             .setSigningKey(jwtSecret)

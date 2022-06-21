@@ -35,6 +35,7 @@
     "react-admin": "^4.1.1",
     "react-app-rewired": "^2.2.1",
     "react-bootstrap": "^2.4.0",
+    "react-cookies": "^0.1.1",
     "react-dom": "^18.1.0",
     "react-hot-toast": "^2.2.0",
     "react-router-dom": "^6.3.0",
@@ -75,6 +76,7 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@types/react-cookies": "^0.1.0",
     "@types/react-modal": "^3.13.1",
     "chai": "^4.3.6",
     "ethereum-waffle": "^3.4.4",

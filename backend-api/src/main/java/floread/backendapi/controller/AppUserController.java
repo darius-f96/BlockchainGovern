@@ -1,9 +1,14 @@
 package floread.backendapi.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import floread.backendapi.dao.AppUserDAO;
 import floread.backendapi.entities.AppUser;
+import floread.backendapi.requestmodel.CanUseEmailRequest;
+import floread.backendapi.requestmodel.CanUseUsernameRequest;
 import floread.backendapi.requestmodel.LoginRequest;
 import floread.backendapi.requestmodel.RegistrationRequest;
 import floread.backendapi.responsemodel.JWTResponse;
@@ -53,13 +60,18 @@ class AppUserController {
     @Autowired
     AppUserService appUserService;
 
-    @GetMapping
-    public String register(@RequestBody RegistrationRequest request){
-        return registrationService.register(request);
+    @PostMapping("/signup")
+    public Boolean register(@RequestBody RegistrationRequest request){
+        try {
+            return registrationService.register(request);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return false;
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<JWTResponse> authenticateUser(@Validated @RequestBody LoginRequest login) {
+    public ResponseEntity<JWTResponse> authenticateUser(@Validated @RequestBody LoginRequest login, HttpServletResponse response) {
         Authentication authentication = authenticationManager
             .authenticate(new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -67,7 +79,9 @@ class AppUserController {
         final UserDetails userDetails = appUserService.loadUserByUsername(login.getUsername());
 
         String jwt = tokenProvider.generateToken(userDetails);
-        
+        String refreshJwt = tokenProvider.generateRefreshToken(userDetails);
+        response.setHeader("access_token", jwt);
+        response.setHeader("refresh_token", refreshJwt);
         return ResponseEntity.ok(new JWTResponse(jwt));
     }
 
@@ -92,5 +106,41 @@ class AppUserController {
         }
     }
 
+    @GetMapping("/rfrtkn")
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response){
+        String reqToken = request.getHeader("Authorization");
+        if (reqToken != null && reqToken.startsWith("Bearer ")){
+            String token = reqToken.substring(7, reqToken.length());
+            if (tokenProvider.validateToken(token)){
+                String username = tokenProvider.getUserUsernameFromJWT(token);
+                UserDetails userDetails = appUserService.loadUserByUsername(username);
+                if (userDetails != null){
+                    String newToken = tokenProvider.generateToken(userDetails);
+                    response.setHeader("access_token", newToken);
+                    response.setHeader("refresh_token", token);
+                }
+            }
+        }
+    }
+
+    @PostMapping("/canUseEmail")
+    public ResponseEntity<Boolean> canUserEmail(@Validated @RequestBody CanUseEmailRequest request) {
+        Optional<AppUser> appUser = repository.findByEmail(request.getEmail());
+
+        if (appUser.isPresent()){
+            return new ResponseEntity<>(false, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+    
+    @PostMapping("/canUseUsername")
+    public ResponseEntity<Boolean> canUseUsername(@Validated @RequestBody CanUseUsernameRequest request) {
+        Optional<AppUser> appUser = repository.findByUsername(request.getUsername());
+
+        if (appUser.isPresent()){
+            return new ResponseEntity<>(false, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
 
 }
