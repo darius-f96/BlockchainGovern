@@ -31,14 +31,13 @@ export const auth = async (tk = cookie.load("authorization")) => {
                     throw new Error(response.statusText);
                 }
                 const accessExpires = new Date() 
-                accessExpires.setMinutes(accessExpires.getMinutes() + 1)
+                accessExpires.setMinutes(accessExpires.getMinutes() + 10)
                 const accessToken = response.headers.get("access_token")
                 tk = accessToken
                 if (accessToken)
                     cookie.save("authorization", accessToken, {
                         path: '/',
                         expires: accessExpires,
-                        maxAge : 1000,
                         secure: true,
                     })
                     window.location.reload()
