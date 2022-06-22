@@ -71,18 +71,23 @@ class AppUserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<JWTResponse> authenticateUser(@Validated @RequestBody LoginRequest login, HttpServletResponse response) {
+    public void authenticateUser(@Validated @RequestBody LoginRequest login, HttpServletResponse response) {
         Authentication authentication = authenticationManager
             .authenticate(new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            final UserDetails userDetails = appUserService.loadUserByUsername(login.getUsername());
 
-        final UserDetails userDetails = appUserService.loadUserByUsername(login.getUsername());
-
-        String jwt = tokenProvider.generateToken(userDetails);
-        String refreshJwt = tokenProvider.generateRefreshToken(userDetails);
-        response.setHeader("access_token", jwt);
-        response.setHeader("refresh_token", refreshJwt);
-        return ResponseEntity.ok(new JWTResponse(jwt));
+            String jwt = tokenProvider.generateToken(userDetails);
+            String refreshJwt = tokenProvider.generateRefreshToken(userDetails);
+            response.setHeader("access_token", jwt);
+            response.setHeader("refresh_token", refreshJwt);
+            response.setStatus(200);
+        } catch (Exception e) {
+            System.out.println(e);
+            response.setStatus(401);
+        }
+       
     }
 
     @RequestMapping(value = "/userContext", method = RequestMethod.GET)

@@ -43,10 +43,8 @@ const authProvider = {
                         expires: refreshExpires,
                         secure: true,
                     })
-                return response.json();
             })
-            .then(auth => {
-                localStorage.setItem('auth', JSON.stringify(auth));
+            .then(() => {
                 SpringBootRequest('appUser/userContext', "GET", undefined).then(resp=>{
                     localStorage.setItem('userid', resp.appUserId)
                     localStorage.setItem('username', resp.username)
