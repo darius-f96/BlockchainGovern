@@ -25,10 +25,9 @@ const authProvider = {
                 if (response.status < 200 || response.status >= 300) {
                     throw new Error(response.statusText);
                 }
-                console.log(response, "resposne isssssssss34534534----------------")
                 const accessExpires = new Date() 
                 const refreshExpires = new Date()
-                accessExpires.setMinutes(accessExpires.getMinutes() + 1)
+                accessExpires.setMinutes(accessExpires.getMinutes() + 10)
                 refreshExpires.setHours(refreshExpires.getHours() + 4)
                 const accessToken = response.headers.get("access_token")
                 const refreshToken = response.headers.get("refresh_token")
