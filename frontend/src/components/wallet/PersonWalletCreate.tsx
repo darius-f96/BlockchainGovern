@@ -34,7 +34,7 @@ export const PersonWalletCreate = (props: {id:string} ) =>{
             walletId: selectedAccount
         }
         SpringBootRequest(`personWallet`, "POST", payload).then(response=>{
-        //     window.location.reload();
+             window.location.reload();
             console.log(response)
         })
         

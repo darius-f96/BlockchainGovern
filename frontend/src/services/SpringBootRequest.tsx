@@ -12,7 +12,7 @@ const SpringBootRequest = async (path:string, method:string, body:object|undefin
                                     "Access-Control-Allow-Origin": "*",
                                     "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
                                     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
-                                    "Authorization" : "Bearer "+ token }),
+                                    "Authorization" : "Bearer "+ token  }),
         })
         try {
         const response = await fetch(request)

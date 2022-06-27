@@ -40,6 +40,7 @@ export default function DeclineContractModal(props: {contract:any}) {
                 console.log(response)
             })
         }
+        window.location.reload()
         handleClose()
     }
 
@@ -57,7 +58,7 @@ export default function DeclineContractModal(props: {contract:any}) {
                 Are you sure?
             </Typography>
             <div style={{justifyContent:"center", display:"flex"}}>       
-                    <Button type="submit" variant="contained" color="error" style={{marginTop:10}} onClick={()=>declineContract(props.contract)}>Decline</Button>
+                    <Button type="submit" variant="contained" color="error" style={{marginTop:10}} onClick={()=>declineContract({contract:props.contract})}>Decline</Button>
                     <Button type="submit" variant="contained" style={{marginTop:10, marginLeft:10}}  onClick={handleClose}>Cancel</Button>
               </div>
           </Box>

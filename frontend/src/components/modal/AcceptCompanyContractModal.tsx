@@ -44,6 +44,7 @@ export default function AcceptCompanyContractModal(props: { data:any, contract:B
       SpringBootRequest(`companyContractCompany/${props.contract.id}`, "PUT", props.contract).then(response=>{
         if (response){
             toast.success("Contract accepted")
+            window.location.reload()
         }
       })      
     }   

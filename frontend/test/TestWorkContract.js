@@ -16,7 +16,7 @@ describe("WorkContract", function () {
     await testBusinessContract.deployed();
 
     //expect(await testBusinessContract.wire()).to.equal();
-    const amt  = 3 * 10e17
+    const amt  = 1 * 10e17
     const setWireTx = await testBusinessContract.wireWage({
         value: amt.toString(), // Sends exactly 1.0 ether
 

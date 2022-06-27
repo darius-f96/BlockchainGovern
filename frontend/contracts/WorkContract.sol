@@ -98,6 +98,7 @@ contract WorkContract  is Ownable{
     }
 
     function wireWage() public payable onlyOwner returns(bool success) {
+        console.log(block.timestamp);
         if (!(startDate < block.timestamp && active && (lastWire + (wireFrequency * 60 * 60 * 24)) < block.timestamp  && endDate < block.timestamp)){
             revert ContractNotActiveOrNotStarted();
         }

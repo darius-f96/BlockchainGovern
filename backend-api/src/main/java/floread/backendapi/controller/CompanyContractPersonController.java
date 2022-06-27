@@ -117,7 +117,7 @@ class CompanyContractPersonController {
         Optional<CompanyContractPerson> existingItemOptional = repository.findById(id);
         if (existingItemOptional.isPresent()) {
 
-            Optional<Company> company = companyDAO.findByCui(existingItemOptional.get().getCompanyId());
+            Optional<Company> company = companyDAO.findById(existingItemOptional.get().getCompanyId());
             if (!company.isPresent()) 
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -145,6 +145,7 @@ class CompanyContractPersonController {
             return new ResponseEntity<>(repository.save(existingItem), HttpStatus.OK);
             
         } else {
+            System.out.println("Contract not found");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

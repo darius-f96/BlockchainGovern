@@ -14,11 +14,13 @@ import AcceptPersonContractModal from '../modal/AcceptPersonContractModal';
 import DeclineContractModal from '../modal/DeclineContractModal';
 import EndContractModal from '../modal/EndContractModal';
 import { HandlePayments } from '../web3/HandlePayments';
+import { useForceUpdate } from '../../utils/forceUpdate';
+
 export const CompanyShow = () => {
     const [balanceArray, setBalanceArray] = useState<Map<string, string>>(new Map())
     const [data, setData] = useState<CompanyEntity>()
     const [userAllowed, setUserAllowed] = useState<Boolean>(false)
- 
+    const forceUpdate = useForceUpdate();
     useEffect(()=>{
         toast.promise(
             getData(),
@@ -44,9 +46,13 @@ export const CompanyShow = () => {
         </TopToolbar>
     )
     const GetWalletBalance = async(props:{record:CompanyWallet}) =>{
-        const balance = provider.getBalance(props.record.walletId).then((response:BigNumber)=> {
-            setBalanceArray(balanceArray.set(props.record.walletId, web3.utils.fromWei(response.toString())))
-        })
+        // const balance = provider.getBalance(props.record.walletId).then((response:BigNumber)=> {
+        //     setBalanceArray(balanceArray.set(props.record.walletId, web3.utils.fromWei(response.toString())))
+        // })
+        const balance = await provider.getBalance(props.record.walletId)
+        setBalanceArray(balanceArray.set(props.record.walletId, web3.utils.fromWei(balance.toString())))
+        console.log(balanceArray)
+        console.log(balance)
         return balance
     }
     if (!data){
@@ -142,7 +148,7 @@ export const CompanyShow = () => {
                             <TextField label="Wallet Code" source="walletCode" />
                             <TextField label = "Description" source="walletDescription" />
                             <TextField label = "Wallet Address" source="walletId" />
-                            <FunctionField render={(record:CompanyWallet) =>{GetWalletBalance({record:record}); return <Button variant="outlined">{balanceArray.get(record.walletId)} ETH</Button> }}  />
+                            <FunctionField render={(record:CompanyWallet) =>{GetWalletBalance({record:record}); return <Button variant="outlined" onClick={forceUpdate}>{balanceArray.get(record.walletId)} ETH</Button> }}  />
                         </Datagrid>
                     </ArrayField>
 

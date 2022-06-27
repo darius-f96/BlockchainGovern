@@ -30,28 +30,39 @@ export default function RegisterAccountModal() {
   const [emailCheck, setEmailCheck] = React.useState<Boolean>(true);
   const [usernameCheck, setUsernameCheck] = React.useState<Boolean>(true);
 
-  React.useEffect(()=>{
-    
-  })
   
+  const req = async(path:string, body:any) => {
+      const request = new Request(`http://localhost:8080/appUser/${path}`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: new Headers({ 'Content-Type': 'application/json',
+                                "Access-Control-Allow-Origin": "*",
+                                "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+                                "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+                                }),
+    })
+    const response = await fetch(request)
+    return response.json()
+  }
+ 
+
   const checkEmail = async () =>{
-    const response = await SpringBootRequest('appUser/canUseEmail', 'POST', {email : email})
+    const response = await req('canUseEmail', {email: email})
     setEmailCheck(response)
   }
 
   const checkUsername = async () =>{
-    const response = await SpringBootRequest('appUser/canUseUsername', 'POST', {username : username})
+    const response = await req('canUseUsername', {username: username})
     setUsernameCheck(response)
   }
 
   const signUp = async() => {
-    
     const payload ={
       username : username,
       password : password,
       email : email
     }
-    const response = await SpringBootRequest('appUser/signup', 'POST', payload)
+    const response = await req('signup', payload)
     if (response){
       toast.success("Your account was registered successfully!")
     }

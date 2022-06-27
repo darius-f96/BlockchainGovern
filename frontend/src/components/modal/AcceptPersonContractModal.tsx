@@ -29,20 +29,21 @@ export default function AcceptPersonContractModal(props: { data:any, contract:B2
   const [open, setOpen] = React.useState(false);
   const [wallet, setWallet] = React.useState<string>('')
   const handleClose = () => {setOpen(false); setWallet('');}
+  const [userWallets, setUserWallets] = React.useState([{}])
 
-  let userWallets:any
+  React.useEffect(()=>{
+    if (instanceofBusiness2PersonContract(props.contract)){
+        SpringBootRequest("personWallet/userWallets", "GET", undefined).then(response=>{
+        if (!response){
+          toast.error("You have no wallets linked to this account")
+          return
+        }
+        setUserWallets(response)
+      })
+    }
+  }, [])
 
   const accept = async (e:any) =>{
-
-    if (instanceofBusiness2PersonContract(props.contract)){
-      if (!userWallets){
-        userWallets = await SpringBootRequest("userWallets", "GET", undefined)
-          if (!userWallets){
-            toast.error("You have no wallets linked to this account")
-            return
-          }
-      }
-    }
      
     const selectedAccount = await ConnectWallet()
 
@@ -53,9 +54,10 @@ export default function AcceptPersonContractModal(props: { data:any, contract:B2
     else {
       props.contract.accepted = true
       props.contract.contractDetails.wireToAddress = wallet
-      SpringBootRequest(`companyContracPerson/${props.contract.id}`, "PUT", props.contract).then(response=>{
+      SpringBootRequest(`companyContractPerson/${props.contract.id}`, "PUT", props.contract).then(response=>{
         if (response){
             toast.success("Contract accepted")
+            window.location.reload()
         }
       })      
     }   

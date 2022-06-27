@@ -31,7 +31,7 @@ export const HandlePayments = (props : {companyData:any}) =>{
     boxShadow: 24,
     p: 4,
   };
-
+  console.log(props.companyData)
   const handlePayments = async() =>{
 
     const selectedAccount = await ConnectWallet()
@@ -50,8 +50,9 @@ export const HandlePayments = (props : {companyData:any}) =>{
     props.companyData.companyContractPersons.map( async(contractPerson:B2PContract) =>{
         if (contractPerson.contractId && contractPerson.contractDetails.active && contractPerson.companyId === props.companyData.cui){
           try {
+            console.log(dateToSeconds(contractPerson.contractDetails.startDate))
             contractHandler = new ethers.Contract(contractPerson.contractId, WorkContractArtifact.abi, signer)
-            const executed = await contractHandler.wireWage({value: ((contractPerson.contractDetails.amount)*10e17).toString()})
+            const executed = await contractHandler.wireWage({value: ((0.1 + contractPerson.contractDetails.amount)*10e17).toString()})
             await executed.wait();
             if (!executed)
               toast.error(`Something went wrong for contract ${contractPerson.contractId}...Payment reverted`)
@@ -67,9 +68,10 @@ export const HandlePayments = (props : {companyData:any}) =>{
     props.companyData.companyContractCompanies1.map( async(contractCompany:B2BContract) =>{
       if (contractCompany.contractId && contractCompany.contractDetails.active && contractCompany.companyId1 === props.companyData.cui){
         try {
+          console.log(dateToSeconds(contractCompany.contractDetails.startDate))
           contractHandler = new ethers.Contract(contractCompany.contractId, BusinessContract.abi, signer) 
           
-           const executed = await contractHandler.wireWage({value: ((contractCompany.contractDetails.amount)*10e17).toString()})
+           const executed = await contractHandler.wireWage({value: ((0.1 + contractCompany.contractDetails.amount)*10e17).toString()})
            await executed.wait();
           console.log("get balance returned: ", executed)
           if (!executed)

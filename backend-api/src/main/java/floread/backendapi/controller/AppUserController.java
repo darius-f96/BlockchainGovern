@@ -72,10 +72,16 @@ class AppUserController {
 
     @PostMapping("/signin")
     public void authenticateUser(@Validated @RequestBody LoginRequest login, HttpServletResponse response) {
-        Authentication authentication = authenticationManager
-            .authenticate(new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        
         try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (IllegalAccessError e) {
+            response.setStatus(401);
+            return;
+        }
+        try {
+        
             final UserDetails userDetails = appUserService.loadUserByUsername(login.getUsername());
 
             String jwt = tokenProvider.generateToken(userDetails);
@@ -84,7 +90,6 @@ class AppUserController {
             response.setHeader("refresh_token", refreshJwt);
             response.setStatus(200);
         } catch (Exception e) {
-            System.out.println(e);
             response.setStatus(401);
         }
        
