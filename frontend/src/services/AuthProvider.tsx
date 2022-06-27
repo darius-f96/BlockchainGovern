@@ -65,7 +65,11 @@ const authProvider = {
         return Promise.resolve();
     },
     checkAuth: async() => {
-        const token = getAuthToken()
+        let token = getAuthToken()
+        if (token === ''){
+            await auth()
+        }
+        token = getAuthToken()
         return token !== ''
         ? Promise.resolve()
         : Promise.reject()
